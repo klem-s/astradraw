@@ -9,6 +9,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceRole, WorkspaceType } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
+import { isAdminRole } from './workspace-role.util';
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 10);
 
@@ -33,6 +34,7 @@ export interface CreateInviteLinkDto {
   role?: WorkspaceRole;
   expiresAt?: Date;
   maxUses?: number;
+  teamId?: string;
 }
 
 export interface WorkspaceWithRole {
@@ -193,7 +195,7 @@ export class WorkspacesService {
         members: {
           create: {
             userId,
-            role: WorkspaceRole.ADMIN,
+            role: WorkspaceRole.OWNER,
           },
         },
         // Note: No private collection created for SHARED workspaces
@@ -214,7 +216,7 @@ export class WorkspacesService {
       slug: workspace.slug,
       avatarUrl: workspace.avatarUrl,
       type: workspace.type,
-      role: WorkspaceRole.ADMIN,
+      role: WorkspaceRole.OWNER,
       memberCount: workspace._count.members,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,
@@ -229,7 +231,11 @@ export class WorkspacesService {
     userId: string,
     dto: UpdateWorkspaceDto,
   ): Promise<WorkspaceWithRole> {
-    await this.requireRole(workspaceId, userId, WorkspaceRole.ADMIN);
+    const membership = await this.requireRole(
+      workspaceId,
+      userId,
+      WorkspaceRole.ADMIN,
+    );
 
     // Check slug uniqueness if changing
     if (dto.slug) {
@@ -261,7 +267,7 @@ export class WorkspacesService {
       slug: workspace.slug,
       avatarUrl: workspace.avatarUrl,
       type: workspace.type,
-      role: WorkspaceRole.ADMIN,
+      role: membership.role,
       memberCount: workspace._count.members,
       createdAt: workspace.createdAt,
       updatedAt: workspace.updatedAt,
@@ -417,19 +423,16 @@ export class WorkspacesService {
       throw new NotFoundException('Member not found');
     }
 
-    // Prevent demoting the last admin
-    if (
-      member.role === WorkspaceRole.ADMIN &&
-      newRole !== WorkspaceRole.ADMIN
-    ) {
-      const adminCount = await this.prisma.workspaceMember.count({
-        where: { workspaceId, role: WorkspaceRole.ADMIN },
-      });
-      if (adminCount <= 1) {
-        throw new BadRequestException(
-          'Cannot demote the last admin. Promote another member first.',
-        );
-      }
+    // The owner's role can't be changed here — use transferOwnership instead
+    if (member.role === WorkspaceRole.OWNER) {
+      throw new BadRequestException(
+        'Cannot change the workspace owner\'s role. Transfer ownership instead.',
+      );
+    }
+    if (newRole === WorkspaceRole.OWNER) {
+      throw new BadRequestException(
+        'Cannot promote to owner here. Use transfer ownership instead.',
+      );
     }
 
     const updated = await this.prisma.workspaceMember.update({
@@ -488,22 +491,18 @@ export class WorkspacesService {
 
     // Allow self-leave or admin removal
     const isSelfLeave = targetMember.userId === actingUserId;
-    const isAdmin = actingMember.role === WorkspaceRole.ADMIN;
+    const isAdmin = isAdminRole(actingMember.role);
 
     if (!isSelfLeave && !isAdmin) {
       throw new ForbiddenException('Only admins can remove other members');
     }
 
-    // Prevent removing the last admin
-    if (targetMember.role === WorkspaceRole.ADMIN) {
-      const adminCount = await this.prisma.workspaceMember.count({
-        where: { workspaceId, role: WorkspaceRole.ADMIN },
-      });
-      if (adminCount <= 1) {
-        throw new BadRequestException(
-          'Cannot remove the last admin. Transfer ownership first.',
-        );
-      }
+    // The owner can never be removed (including leaving) — they must
+    // transfer ownership to someone else first
+    if (targetMember.role === WorkspaceRole.OWNER) {
+      throw new BadRequestException(
+        'Cannot remove the workspace owner. Transfer ownership first.',
+      );
     }
 
     await this.prisma.workspaceMember.delete({
@@ -528,6 +527,15 @@ export class WorkspacesService {
     await this.requireSharedWorkspace(workspaceId);
     await this.requireRole(workspaceId, userId, WorkspaceRole.ADMIN);
 
+    if (dto.teamId) {
+      const team = await this.prisma.team.findUnique({
+        where: { id: dto.teamId },
+      });
+      if (!team || team.workspaceId !== workspaceId) {
+        throw new NotFoundException('Team not found in this workspace');
+      }
+    }
+
     const inviteLink = await this.prisma.inviteLink.create({
       data: {
         code: nanoid(),
@@ -535,6 +543,7 @@ export class WorkspacesService {
         role: dto.role || WorkspaceRole.MEMBER,
         expiresAt: dto.expiresAt,
         maxUses: dto.maxUses,
+        teamId: dto.teamId,
       },
     });
 
@@ -623,20 +632,30 @@ export class WorkspacesService {
       return this.getWorkspace(link.workspaceId, userId);
     }
 
-    // Create membership and increment link uses
-    await this.prisma.$transaction([
-      this.prisma.workspaceMember.create({
+    // Create membership, add to the linked team (if any), and increment link uses
+    await this.prisma.$transaction(async (tx) => {
+      const newMember = await tx.workspaceMember.create({
         data: {
           workspaceId: link.workspaceId,
           userId,
           role: link.role,
         },
-      }),
-      this.prisma.inviteLink.update({
+      });
+
+      if (link.teamId) {
+        await tx.teamMember.create({
+          data: {
+            teamId: link.teamId,
+            memberId: newMember.id,
+          },
+        });
+      }
+
+      await tx.inviteLink.update({
         where: { id: link.id },
         data: { uses: { increment: 1 } },
-      }),
-    ]);
+      });
+    });
 
     this.logger.log(
       `User ${userId} joined workspace ${link.workspaceId} via invite link`,
@@ -682,6 +701,7 @@ export class WorkspacesService {
     const membership = await this.requireMembership(workspaceId, userId);
 
     const roleHierarchy = {
+      [WorkspaceRole.OWNER]: 4,
       [WorkspaceRole.ADMIN]: 3,
       [WorkspaceRole.MEMBER]: 2,
       [WorkspaceRole.VIEWER]: 1,
@@ -701,7 +721,54 @@ export class WorkspacesService {
    */
   async isAdmin(workspaceId: string, userId: string): Promise<boolean> {
     const membership = await this.getMembership(workspaceId, userId);
-    return membership?.role === WorkspaceRole.ADMIN;
+    return !!membership && isAdminRole(membership.role);
+  }
+
+  /**
+   * Transfer workspace ownership to another member. Only the current owner
+   * may do this. The current owner is demoted to ADMIN.
+   */
+  async transferOwnership(
+    workspaceId: string,
+    ownerUserId: string,
+    targetMemberId: string,
+  ): Promise<void> {
+    const ownerMembership = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId, userId: ownerUserId },
+      },
+    });
+
+    if (!ownerMembership || ownerMembership.role !== WorkspaceRole.OWNER) {
+      throw new ForbiddenException('Only the workspace owner can transfer ownership');
+    }
+
+    const targetMember = await this.prisma.workspaceMember.findUnique({
+      where: { id: targetMemberId },
+    });
+
+    if (!targetMember || targetMember.workspaceId !== workspaceId) {
+      throw new NotFoundException('Member not found');
+    }
+
+    if (targetMember.userId === ownerUserId) {
+      throw new BadRequestException('You are already the owner');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.workspaceMember.update({
+        where: { id: ownerMembership.id },
+        data: { role: WorkspaceRole.ADMIN },
+      }),
+      this.prisma.workspaceMember.update({
+        where: { id: targetMember.id },
+        data: { role: WorkspaceRole.OWNER },
+      }),
+    ]);
+
+    this.logger.log(
+      `Transferred ownership of workspace ${workspaceId} from ${ownerUserId} to member ${targetMemberId}`,
+    );
   }
 
   /**

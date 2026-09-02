@@ -65,7 +65,7 @@ export class UsersService {
         members: {
           create: {
             userId,
-            role: WorkspaceRole.ADMIN,
+            role: WorkspaceRole.OWNER,
           },
         },
         // Also create a default private collection for personal scenes

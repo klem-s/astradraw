@@ -217,6 +217,7 @@ import {
 
 import type { CollabAPI } from "./collab/Collab";
 
+import { isAdminRole } from "./auth/workspaceApi";
 import type { Workspace } from "./auth/workspaceApi";
 
 polyfill();
@@ -1781,7 +1782,7 @@ const ExcalidrawWrapper = () => {
     );
   }
 
-  const isWorkspaceAdmin = currentWorkspace?.role === "ADMIN";
+  const isWorkspaceAdmin = isAdminRole(currentWorkspace?.role);
 
   return (
     <div

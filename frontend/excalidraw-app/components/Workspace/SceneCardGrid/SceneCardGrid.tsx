@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { t } from "@excalidraw/excalidraw/i18n";
 
+import { useSceneAuthorLabel } from "../../../hooks/useSceneAuthorLabel";
+
 import styles from "./SceneCardGrid.module.scss";
 
 import type { WorkspaceScene } from "../../../auth/workspaceApi";
@@ -52,6 +54,7 @@ interface SceneGridCardProps {
   onDelete?: () => void;
   onRename?: (newTitle: string) => void;
   onDuplicate?: () => void;
+  authorName?: string;
 }
 
 const SceneGridCard: React.FC<SceneGridCardProps> = ({
@@ -60,6 +63,7 @@ const SceneGridCard: React.FC<SceneGridCardProps> = ({
   onDelete,
   onRename,
   onDuplicate,
+  authorName,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -209,7 +213,9 @@ const SceneGridCard: React.FC<SceneGridCardProps> = ({
           )}
         </div>
         <div className={styles.meta}>
-          <span className={styles.author}>{t("workspace.byYou")}</span>
+          {authorName && (
+            <span className={styles.author}>{authorName}</span>
+          )}
         </div>
       </div>
 
@@ -279,6 +285,8 @@ export const SceneCardGrid: React.FC<SceneCardGridProps> = ({
   emptyMessage,
   emptyHint,
 }) => {
+  const getAuthorName = useSceneAuthorLabel();
+
   if (scenes.length === 0) {
     return (
       <div className={styles.empty}>
@@ -308,6 +316,7 @@ export const SceneCardGrid: React.FC<SceneCardGridProps> = ({
           onDuplicate={
             onDuplicateScene ? () => onDuplicateScene(scene.id) : undefined
           }
+          authorName={getAuthorName(scene)}
         />
       ))}
     </div>

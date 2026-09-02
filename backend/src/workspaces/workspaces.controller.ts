@@ -37,10 +37,15 @@ interface UpdateMemberRoleDto {
   role: WorkspaceRole;
 }
 
+interface TransferOwnershipDto {
+  memberId: string;
+}
+
 interface CreateInviteLinkDto {
   role?: WorkspaceRole;
   expiresAt?: string;
   maxUses?: number;
+  teamId?: string;
 }
 
 interface JoinViaLinkDto {
@@ -181,6 +186,25 @@ export class WorkspacesController {
     return { success: true };
   }
 
+  /**
+   * Transfer workspace ownership to another member (owner only)
+   */
+  @Post(':workspaceId/transfer-ownership')
+  @UseGuards(WorkspaceRoleGuard)
+  @RequireRole(WorkspaceRole.OWNER)
+  async transferOwnership(
+    @Param('workspaceId') workspaceId: string,
+    @Body() dto: TransferOwnershipDto,
+    @CurrentUser() user: User,
+  ) {
+    await this.workspacesService.transferOwnership(
+      workspaceId,
+      user.id,
+      dto.memberId,
+    );
+    return { success: true };
+  }
+
   // ===========================================================================
   // Invite Links
   // ===========================================================================
@@ -213,6 +237,7 @@ export class WorkspacesController {
       role: dto.role,
       expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : undefined,
       maxUses: dto.maxUses,
+      teamId: dto.teamId,
     });
   }
 

@@ -22,7 +22,12 @@ export async function listInviteLinks(
  */
 export async function createInviteLink(
   workspaceId: string,
-  options?: { role?: WorkspaceRole; expiresAt?: string; maxUses?: number },
+  options?: {
+    role?: WorkspaceRole;
+    expiresAt?: string;
+    maxUses?: number;
+    teamId?: string;
+  },
 ): Promise<InviteLink> {
   return apiRequest(`/workspaces/${workspaceId}/invite-links`, {
     method: "POST",

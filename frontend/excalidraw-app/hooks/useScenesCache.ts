@@ -18,6 +18,7 @@ const SCENE_LIST_FIELDS = [
   "isPublic",
   "canEdit",
   "collectionId", // Needed for filtering/grouping
+  "lastEditedByUserId",
 ];
 
 interface UseScenesOptions {

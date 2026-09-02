@@ -15,6 +15,7 @@ datasource db {
 // =============================================================================
 
 enum WorkspaceRole {
+  OWNER
   ADMIN
   MEMBER
   VIEWER
@@ -55,7 +56,8 @@ model User {
   updatedAt    DateTime @updatedAt
 
   // Relations
-  scenes              Scene[]
+  scenes              Scene[] @relation("SceneOwner")
+  lastEditedScenes    Scene[] @relation("SceneLastEditedBy")
   talktrackRecordings TalktrackRecording[]
   workspaceMemberships WorkspaceMember[]
   
@@ -123,11 +125,13 @@ model InviteLink {
   id          String        @id @default(cuid())
   code        String        @unique
   role        WorkspaceRole @default(MEMBER)
-  
+
   // Relations
   workspaceId String
   workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  
+  teamId      String?
+  team        Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
   // Constraints
   expiresAt   DateTime?
   maxUses     Int?
@@ -136,6 +140,7 @@ model InviteLink {
   createdAt   DateTime      @default(now())
 
   @@index([workspaceId])
+  @@index([teamId])
   @@map("invite_links")
 }
 
@@ -155,7 +160,8 @@ model Team {
   
   members     TeamMember[]
   collections TeamCollection[]
-  
+  inviteLinks InviteLink[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -241,8 +247,12 @@ model Scene {
   
   // Ownership
   userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user         User      @relation("SceneOwner", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Who last saved the scene data (defaults to the creator)
+  lastEditedByUserId String?
+  lastEditedBy       User?  @relation("SceneLastEditedBy", fields: [lastEditedByUserId], references: [id], onDelete: SetNull)
+
   // Organization
   collectionId String?
   collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
@@ -259,6 +269,7 @@ model Scene {
   notifications       Notification[]
 
   @@index([userId])
+  @@index([lastEditedByUserId])
   @@index([collectionId])
   @@map("scenes")
 }

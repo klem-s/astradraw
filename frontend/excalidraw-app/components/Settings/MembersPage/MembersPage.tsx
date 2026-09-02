@@ -5,10 +5,14 @@ import {
   listWorkspaceMembers,
   updateMemberRole,
   removeMember,
+  transferOwnership,
   createInviteLink,
+  listTeams,
   type WorkspaceMember,
   type WorkspaceRole,
+  type Team,
 } from "../../../auth/workspaceApi";
+import { useAuth } from "../../../auth";
 import { showSuccess } from "../../../utils/toast";
 
 import styles from "./MembersPage.module.scss";
@@ -27,12 +31,15 @@ export const MembersPage: React.FC<MembersPageProps> = ({
   workspaceId,
   isAdmin,
 }) => {
+  const { user } = useAuth();
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [inviteRole, setInviteRole] = useState<WorkspaceRole>("MEMBER");
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [inviteTeamId, setInviteTeamId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const loadMembers = useCallback(async () => {
@@ -55,6 +62,15 @@ export const MembersPage: React.FC<MembersPageProps> = ({
   useEffect(() => {
     loadMembers();
   }, [loadMembers]);
+
+  useEffect(() => {
+    if (!workspaceId) {
+      return;
+    }
+    listTeams(workspaceId)
+      .then(setTeams)
+      .catch(() => setTeams([]));
+  }, [workspaceId]);
 
   const handleRoleChange = async (memberId: string, newRole: WorkspaceRole) => {
     if (!workspaceId) {
@@ -89,6 +105,28 @@ export const MembersPage: React.FC<MembersPageProps> = ({
     }
   };
 
+  const handleTransferOwnership = async (
+    memberId: string,
+    memberName: string,
+  ) => {
+    if (!workspaceId) {
+      return;
+    }
+    if (
+      !confirm(t("settings.confirmTransferOwnership", { name: memberName }))
+    ) {
+      return;
+    }
+
+    try {
+      await transferOwnership(workspaceId, memberId);
+      await loadMembers();
+      showSuccess(t("settings.ownershipTransferred"));
+    } catch (err: any) {
+      setError(err.message || "Failed to transfer ownership");
+    }
+  };
+
   const handleCreateInviteLink = async () => {
     if (!workspaceId) {
       return;
@@ -102,6 +140,7 @@ export const MembersPage: React.FC<MembersPageProps> = ({
       const link = await createInviteLink(workspaceId, {
         role: inviteRole,
         expiresAt: expiresAt.toISOString(),
+        teamId: inviteTeamId || undefined,
       });
       const fullUrl = `${window.location.origin}/invite/${link.code}`;
       setInviteLink(fullUrl);
@@ -152,6 +191,10 @@ export const MembersPage: React.FC<MembersPageProps> = ({
         return styles.roleSelect;
     }
   };
+
+  const isCurrentUserOwner = members.some(
+    (m) => m.user.id === user?.id && m.role === "OWNER",
+  );
 
   const filteredMembers = members.filter((member) => {
     if (!searchQuery.trim()) {
@@ -272,7 +315,7 @@ export const MembersPage: React.FC<MembersPageProps> = ({
                   )}
                 </div>
                 <div className={styles.memberRole}>
-                  {isAdmin && member.role !== "ADMIN" ? (
+                  {isAdmin && member.role !== "OWNER" ? (
                     <select
                       value={member.role}
                       onChange={(e) =>
@@ -283,12 +326,15 @@ export const MembersPage: React.FC<MembersPageProps> = ({
                       }
                       className={getRoleSelectStyle(member.role)}
                     >
+                      <option value="ADMIN">{t("settings.roleAdmin")}</option>
                       <option value="MEMBER">{t("settings.roleMember")}</option>
                       <option value="VIEWER">{t("settings.roleViewer")}</option>
                     </select>
                   ) : (
                     <span className={getRoleBadgeStyle(member.role)}>
-                      {member.role === "ADMIN"
+                      {member.role === "OWNER"
+                        ? t("settings.roleOwner")
+                        : member.role === "ADMIN"
                         ? t("settings.roleAdmin")
                         : member.role === "MEMBER"
                         ? t("settings.roleMember")
@@ -296,7 +342,28 @@ export const MembersPage: React.FC<MembersPageProps> = ({
                     </span>
                   )}
                 </div>
-                {isAdmin && member.role !== "ADMIN" && (
+                {isCurrentUserOwner && member.role !== "OWNER" && (
+                  <button
+                    className={styles.memberRemove}
+                    onClick={() =>
+                      handleTransferOwnership(
+                        member.id,
+                        member.user.name || member.user.email,
+                      )
+                    }
+                    title={t("settings.transferOwnership")}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M3 18h18M4 18l1.5-9L9 13l3-7 3 7 3.5-4L20 18" />
+                    </svg>
+                  </button>
+                )}
+                {isAdmin && member.role !== "OWNER" && (
                   <button
                     className={styles.memberRemove}
                     onClick={() =>
@@ -330,6 +397,7 @@ export const MembersPage: React.FC<MembersPageProps> = ({
           onClick={() => {
             setShowInviteDialog(false);
             setInviteLink(null);
+            setInviteTeamId("");
           }}
         >
           <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
@@ -340,6 +408,7 @@ export const MembersPage: React.FC<MembersPageProps> = ({
                 onClick={() => {
                   setShowInviteDialog(false);
                   setInviteLink(null);
+                  setInviteTeamId("");
                 }}
               >
                 <svg
@@ -366,10 +435,28 @@ export const MembersPage: React.FC<MembersPageProps> = ({
                       }
                       className={styles.select}
                     >
+                      <option value="ADMIN">{t("settings.roleAdmin")}</option>
                       <option value="MEMBER">{t("settings.roleMember")}</option>
                       <option value="VIEWER">{t("settings.roleViewer")}</option>
                     </select>
                   </div>
+                  {teams.length > 0 && (
+                    <div className={styles.formGroup}>
+                      <label>{t("settings.inviteTeam")}</label>
+                      <select
+                        value={inviteTeamId}
+                        onChange={(e) => setInviteTeamId(e.target.value)}
+                        className={styles.select}
+                      >
+                        <option value="">{t("settings.inviteNoTeam")}</option>
+                        {teams.map((team) => (
+                          <option key={team.id} value={team.id}>
+                            {team.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <button
                     className={styles.buttonPrimary}
                     onClick={handleCreateInviteLink}

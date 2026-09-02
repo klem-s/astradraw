@@ -332,7 +332,7 @@ export interface WorkspaceData {
   name: string;
   slug: string;
   avatarUrl: string | null;
-  role: "ADMIN" | "MEMBER" | "VIEWER";
+  role: "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
   type?: "PERSONAL" | "SHARED";
   memberCount: number;
   createdAt: string;

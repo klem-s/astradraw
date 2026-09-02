@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  CollectionAccessLevel,
-  WorkspaceRole,
-  WorkspaceType,
-} from '@prisma/client';
+import { WorkspaceRole, WorkspaceType } from '@prisma/client';
+import { isAdminRole } from '../workspaces/workspace-role.util';
 
 export type SceneAccessResult = {
   canView: boolean;
@@ -29,15 +26,6 @@ export class SceneAccessService {
         collection: {
           include: {
             workspace: true,
-            teamCollections: {
-              include: {
-                team: {
-                  include: {
-                    members: true,
-                  },
-                },
-              },
-            },
           },
         },
       },
@@ -63,9 +51,6 @@ export class SceneAccessService {
       where: {
         workspaceId_userId: { workspaceId: workspace.id, userId },
       },
-      include: {
-        teamMemberships: true,
-      },
     });
 
     if (!membership) {
@@ -83,7 +68,7 @@ export class SceneAccessService {
     }
 
     // Shared workspace
-    if (membership.role === WorkspaceRole.ADMIN) {
+    if (isAdminRole(membership.role)) {
       return {
         canView: true,
         canEdit: true,
@@ -91,30 +76,19 @@ export class SceneAccessService {
       };
     }
 
-    // Private collection: only owner
+    // Private collection: viewable by any workspace member, editable by the owner
     if (scene.collection.isPrivate) {
       const isOwner = scene.collection.userId === userId;
       return {
-        canView: isOwner,
+        canView: true,
         canEdit: isOwner && membership.role !== WorkspaceRole.VIEWER,
         canCollaborate: isOwner && !!scene.collaborationEnabled,
       };
     }
 
-    // Check team access
-    const userTeamIds =
-      membership.teamMemberships?.map((tm) => tm.teamId) ?? [];
-    const teamAccess = scene.collection.teamCollections.find((tc) =>
-      userTeamIds.includes(tc.teamId),
-    );
-
-    if (!teamAccess) {
-      return { canView: false, canEdit: false, canCollaborate: false };
-    }
-
-    const canEdit =
-      teamAccess.accessLevel === CollectionAccessLevel.EDIT &&
-      membership.role !== WorkspaceRole.VIEWER;
+    // Non-private collection: viewable by any workspace member, and editable
+    // by any MEMBER (VIEWERs stay read-only).
+    const canEdit = membership.role !== WorkspaceRole.VIEWER;
 
     return {
       canView: true,

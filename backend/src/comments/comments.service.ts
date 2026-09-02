@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SceneAccessService } from '../workspace/scene-access.service';
+import { isAdminRole } from '../workspaces/workspace-role.util';
 import { NotificationsService } from '../notifications/notifications.service';
 import type { CreateThreadDto } from './dto/create-thread.dto';
 import type { CreateCommentDto } from './dto/create-comment.dto';
@@ -317,7 +318,8 @@ export class CommentsService {
       },
     });
 
-    const isAdmin = scene?.collection?.workspace?.members[0]?.role === 'ADMIN';
+    const memberRole = scene?.collection?.workspace?.members[0]?.role;
+    const isAdmin = !!memberRole && isAdminRole(memberRole);
 
     if (!isOwner && !isAdmin) {
       throw new ForbiddenException(
@@ -604,8 +606,9 @@ export class CommentsService {
 
     // Check permissions: admin or comment owner can delete
     const isOwner = comment.createdById === userId;
-    const isAdmin =
-      comment.thread.scene.collection?.workspace?.members[0]?.role === 'ADMIN';
+    const commentMemberRole =
+      comment.thread.scene.collection?.workspace?.members[0]?.role;
+    const isAdmin = !!commentMemberRole && isAdminRole(commentMemberRole);
 
     if (!isOwner && !isAdmin) {
       throw new ForbiddenException(

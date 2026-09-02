@@ -59,3 +59,17 @@ export async function removeMember(
     errorMessage: "Failed to remove member",
   });
 }
+
+/**
+ * Transfer workspace ownership to another member (owner only)
+ */
+export async function transferOwnership(
+  workspaceId: string,
+  memberId: string,
+): Promise<{ success: boolean }> {
+  return apiRequest(`/workspaces/${workspaceId}/transfer-ownership`, {
+    method: "POST",
+    ...jsonBody({ memberId }),
+    errorMessage: "Failed to transfer ownership",
+  });
+}

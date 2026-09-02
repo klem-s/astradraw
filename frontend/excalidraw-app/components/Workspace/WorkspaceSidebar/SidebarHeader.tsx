@@ -117,21 +117,17 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                   )}
                 </button>
               ))}
-              {user?.isSuperAdmin && (
-                <>
-                  <div className={styles.menuDivider} />
-                  <button
-                    className={`${styles.menuItem} ${styles.menuItemCreate}`}
-                    onClick={() => {
-                      onCreateWorkspaceClick();
-                      setWorkspaceMenuOpen(false);
-                    }}
-                  >
-                    <span className={styles.menuItemIcon}>+</span>
-                    <span>{t("workspace.createWorkspace")}</span>
-                  </button>
-                </>
-              )}
+              <div className={styles.menuDivider} />
+              <button
+                className={`${styles.menuItem} ${styles.menuItemCreate}`}
+                onClick={() => {
+                  onCreateWorkspaceClick();
+                  setWorkspaceMenuOpen(false);
+                }}
+              >
+                <span className={styles.menuItemIcon}>+</span>
+                <span>{t("workspace.createWorkspace")}</span>
+              </button>
             </div>
           )}
         </div>

@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceRole, CollectionAccessLevel } from '@prisma/client';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { isAdminRole } from '../workspaces/workspace-role.util';
 import { TeamsService } from '../teams/teams.service';
 
 export interface CreateCollectionDto {
@@ -61,14 +62,13 @@ export class CollectionsService {
       userId,
     );
 
-    const isAdmin = membership.role === WorkspaceRole.ADMIN;
+    const isAdmin = isAdminRole(membership.role);
 
     // Get collections the user has access to via teams
     const teamAccess = await this.teamsService.getAccessibleCollectionIds(
       workspaceId,
       userId,
     );
-    const teamCollectionIds = new Set(teamAccess.map((t) => t.collectionId));
     const teamWriteAccess = new Map(
       teamAccess.map((t) => [t.collectionId, t.canWrite]),
     );
@@ -90,25 +90,19 @@ export class CollectionsService {
     for (const collection of collections) {
       const isOwner = collection.userId === userId;
 
-      // Access rules:
-      // 1. Admin can see everything
-      // 2. Owner can see their own collections
-      // 3. Non-private collections are visible if user has team access
-      const canSee =
-        isAdmin ||
-        isOwner ||
-        (!collection.isPrivate && teamCollectionIds.has(collection.id));
-
-      if (!canSee) {
-        continue;
-      }
+      // Any workspace member can see any collection in the workspace.
+      // Team access does not gate visibility, only write access (below).
 
       // Write access rules:
       // 1. Admin can write to everything
       // 2. Owner can write to their own collections
-      // 3. Team access with canWrite=true
+      // 3. Any MEMBER can write to any collection by default; VIEWERs need
+      //    an explicit team canWrite grant
       const canWrite =
-        isAdmin || isOwner || (teamWriteAccess.get(collection.id) ?? false);
+        isAdmin ||
+        isOwner ||
+        membership.role === WorkspaceRole.MEMBER ||
+        (teamWriteAccess.get(collection.id) ?? false);
 
       accessibleCollections.push({
         id: collection.id,
@@ -158,30 +152,11 @@ export class CollectionsService {
       throw new ForbiddenException('You are not a member of this workspace');
     }
 
-    const isAdmin = membership.role === WorkspaceRole.ADMIN;
+    const isAdmin = isAdminRole(membership.role);
     const isOwner = collection.userId === userId;
 
-    // Check access
-    if (!isAdmin && !isOwner) {
-      if (collection.isPrivate) {
-        throw new ForbiddenException('This is a private collection');
-      }
-
-      // Check team access
-      const teamAccess = await this.teamsService.getAccessibleCollectionIds(
-        collection.workspaceId,
-        userId,
-      );
-      const hasTeamAccess = teamAccess.some(
-        (t) => t.collectionId === collectionId,
-      );
-
-      if (!hasTeamAccess) {
-        throw new ForbiddenException(
-          'You do not have access to this collection',
-        );
-      }
-    }
+    // Any workspace member can view any collection in the workspace
+    // (edit access is gated separately below).
 
     // Determine write access
     const teamAccess = await this.teamsService.getAccessibleCollectionIds(
@@ -191,7 +166,11 @@ export class CollectionsService {
     const teamWriteAccess = teamAccess.find(
       (t) => t.collectionId === collectionId,
     )?.canWrite;
-    const canWrite = isAdmin || isOwner || (teamWriteAccess ?? false);
+    const canWrite =
+      isAdmin ||
+      isOwner ||
+      membership.role === WorkspaceRole.MEMBER ||
+      (teamWriteAccess ?? false);
 
     return {
       id: collection.id,
@@ -288,7 +267,7 @@ export class CollectionsService {
       throw new ForbiddenException('You are not a member of this workspace');
     }
 
-    const isAdmin = membership.role === WorkspaceRole.ADMIN;
+    const isAdmin = isAdminRole(membership.role);
     const isOwner = collection.userId === userId;
 
     // Only admin or owner can update
@@ -352,7 +331,7 @@ export class CollectionsService {
       throw new ForbiddenException('You are not a member of this workspace');
     }
 
-    const isAdmin = membership.role === WorkspaceRole.ADMIN;
+    const isAdmin = isAdminRole(membership.role);
     const isOwner = collection.userId === userId;
 
     // Only admin or owner can delete

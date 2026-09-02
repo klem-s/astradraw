@@ -3,6 +3,8 @@ import { t } from "@excalidraw/excalidraw/i18n";
 
 import { SceneCard } from "../SceneCard";
 
+import { useSceneAuthorLabel } from "../../../hooks/useSceneAuthorLabel";
+
 import styles from "./BoardModeNav.module.scss";
 
 import type { WorkspaceScene, Collection } from "../../../auth/workspaceApi";
@@ -60,7 +62,6 @@ export interface BoardModeNavProps {
   onDeleteScene?: (sceneId: string) => void;
   onRenameScene?: (sceneId: string, newTitle: string) => void;
   onDuplicateScene?: (sceneId: string) => void;
-  authorName?: string;
 }
 
 export const BoardModeNav: React.FC<BoardModeNavProps> = ({
@@ -75,8 +76,8 @@ export const BoardModeNav: React.FC<BoardModeNavProps> = ({
   onDeleteScene,
   onRenameScene,
   onDuplicateScene,
-  authorName,
 }) => {
+  const getAuthorName = useSceneAuthorLabel();
   const collectionIcon = activeCollection?.isPrivate
     ? lockIcon
     : activeCollection?.icon || folderIcon;
@@ -152,7 +153,7 @@ export const BoardModeNav: React.FC<BoardModeNavProps> = ({
                 onDuplicate={
                   onDuplicateScene ? () => onDuplicateScene(scene.id) : () => {}
                 }
-                authorName={authorName}
+                authorName={getAuthorName(scene)}
               />
             ))}
           </div>

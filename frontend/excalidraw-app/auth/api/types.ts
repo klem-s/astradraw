@@ -6,8 +6,13 @@
 // Workspace Types
 // ============================================================================
 
-export type WorkspaceRole = "ADMIN" | "MEMBER" | "VIEWER";
+export type WorkspaceRole = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 export type WorkspaceType = "PERSONAL" | "SHARED";
+
+/** OWNER outranks ADMIN but should count as an admin everywhere admin-ness is checked. */
+export function isAdminRole(role: WorkspaceRole | undefined | null): boolean {
+  return role === "ADMIN" || role === "OWNER";
+}
 
 export interface Workspace {
   id: string;
@@ -108,6 +113,7 @@ export interface InviteLink {
   code: string;
   role: WorkspaceRole;
   workspaceId: string;
+  teamId: string | null;
   expiresAt: string | null;
   maxUses: number | null;
   uses: number;
@@ -130,6 +136,8 @@ export interface WorkspaceScene {
   createdAt: string;
   updatedAt: string;
   canEdit?: boolean;
+  userId?: string;
+  lastEditedByUserId?: string | null;
 }
 
 export interface CreateSceneDto {

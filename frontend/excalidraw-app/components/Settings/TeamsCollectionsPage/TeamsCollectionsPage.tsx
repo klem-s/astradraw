@@ -16,6 +16,7 @@ import {
   deleteCollection,
   setCollectionTeamAccess,
   removeCollectionTeamAccess,
+  isAdminRole,
   type Team,
   type Collection,
   type WorkspaceMember,
@@ -108,7 +109,7 @@ export const TeamsCollectionsPage: React.FC<TeamsCollectionsPageProps> = ({
 
   // Count admin members (they are automatically part of every team)
   const adminMembers = useMemo(
-    () => members.filter((m) => m.role === "ADMIN"),
+    () => members.filter((m) => isAdminRole(m.role)),
     [members],
   );
 
@@ -418,7 +419,7 @@ export const TeamsCollectionsPage: React.FC<TeamsCollectionsPageProps> = ({
   };
 
   const isAdminMember = (member: WorkspaceMember) => {
-    return member.role === "ADMIN";
+    return isAdminRole(member.role);
   };
 
   // Filter out private collections for team assignment

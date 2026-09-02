@@ -9,6 +9,9 @@
 // Base client utilities
 export { getApiBaseUrl, ApiError, apiRequest, apiRequestRaw } from "./client";
 
+// Role helpers
+export { isAdminRole } from "./types";
+
 // All types
 export type {
   // Workspace types
@@ -103,6 +106,7 @@ export {
   inviteToWorkspace,
   updateMemberRole,
   removeMember,
+  transferOwnership,
 } from "./members";
 
 // Invite Links API

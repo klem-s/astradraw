@@ -37,6 +37,7 @@ import {
 } from '../storage/storage.interface';
 import { CollectionsService } from '../collections/collections.service';
 import { WorkspacesService } from '../workspaces/workspaces.service';
+import { isAdminRole } from '../workspaces/workspace-role.util';
 import { TeamsService } from '../teams/teams.service';
 import { SceneAccessResult, SceneAccessService } from './scene-access.service';
 import { getSecret } from '../utils/secrets';
@@ -56,6 +57,8 @@ const SCENE_FIELDS = [
   'createdAt',
   'updatedAt',
   'canEdit',
+  'userId',
+  'lastEditedByUserId',
 ] as const;
 
 // DTOs
@@ -91,6 +94,8 @@ interface SceneResponse {
   createdAt: string;
   updatedAt: string;
   canEdit: boolean;
+  userId: string;
+  lastEditedByUserId: string | null;
 }
 
 interface SceneWithAccessResponse {
@@ -223,7 +228,7 @@ export class WorkspaceScenesController {
       throw new ForbiddenException('You are not a member of this workspace');
     }
 
-    const isAdmin = membership.role === WorkspaceRole.ADMIN;
+    const isAdmin = isAdminRole(membership.role);
 
     // Get accessible collections
     const accessibleCollections = await this.collectionsService.listCollections(
@@ -511,6 +516,7 @@ export class WorkspaceScenesController {
         thumbnailUrl: dto.thumbnail,
         storageKey,
         userId: user.id,
+        lastEditedByUserId: user.id,
         collectionId: dto.collectionId,
         roomId,
         roomKeyEncrypted,
@@ -574,6 +580,7 @@ export class WorkspaceScenesController {
           dto.collectionId !== undefined
             ? dto.collectionId
             : scene.collectionId,
+        lastEditedByUserId: user.id,
       },
     });
 
@@ -606,10 +613,10 @@ export class WorkspaceScenesController {
     // Update storage
     await this.storageService.set(scene.storageKey, data, this.namespace);
 
-    // Update timestamp
+    // Update timestamp and last editor
     await this.prisma.scene.update({
       where: { id },
-      data: { updatedAt: new Date() },
+      data: { updatedAt: new Date(), lastEditedByUserId: user.id },
     });
 
     return { success: true };
@@ -808,6 +815,7 @@ export class WorkspaceScenesController {
         thumbnailUrl: scene.thumbnailUrl,
         storageKey: newStorageKey,
         userId: user.id,
+        lastEditedByUserId: user.id,
         collectionId: targetCollectionId,
         isPublic: false,
       },
@@ -940,6 +948,7 @@ export class WorkspaceScenesController {
           thumbnailUrl: scene.thumbnailUrl,
           storageKey: newStorageKey,
           userId: user.id,
+          lastEditedByUserId: user.id,
           collectionId: newCollection.id,
           isPublic: false,
           collaborationEnabled:
@@ -1140,6 +1149,8 @@ export class WorkspaceScenesController {
       createdAt: scene.createdAt.toISOString(),
       updatedAt: scene.updatedAt.toISOString(),
       canEdit,
+      userId: scene.userId,
+      lastEditedByUserId: scene.lastEditedByUserId ?? scene.userId,
     };
   }
 }

@@ -3,6 +3,7 @@ import { t } from "@excalidraw/excalidraw/i18n";
 
 import { useAtom, useAtomValue, useSetAtom } from "../../../app-jotai";
 import { useAuth } from "../../../auth";
+import { isAdminRole } from "../../../auth/workspaceApi";
 
 import { useWorkspaces } from "../../../hooks/useWorkspaces";
 import { useCollections } from "../../../hooks/useCollections";
@@ -166,7 +167,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     ),
   });
 
-  const isAdmin = currentWorkspace?.role === "ADMIN";
+  const isAdmin = isAdminRole(currentWorkspace?.role);
 
   // Dialog states
   const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -457,7 +458,6 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                 onDeleteScene={deleteScene}
                 onRenameScene={renameScene}
                 onDuplicateScene={duplicateScene}
-                authorName={user?.name || undefined}
               />
             ) : (
               <FullModeNav
