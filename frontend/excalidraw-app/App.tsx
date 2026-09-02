@@ -1038,18 +1038,27 @@ const ExcalidrawWrapper = () => {
           loaded.roomKey;
 
         if (isCollabScene) {
-          // For collaboration scenes, data should be loaded from room storage
-          // NOT from backend API. Room storage is the source of truth.
+          // Collaboration scenes normally load from room storage (the live
+          // source of truth while people are actively co-editing). But room
+          // storage can be empty/stale relative to the scene's own saved
+          // data (e.g. it was saved via the REST autosave path while no one
+          // else was ever connected to the room) - in that case fall back
+          // to the backend-loaded data instead of showing a blank canvas.
           const roomKey = roomKeyFromHash || loaded.roomKey!;
 
-          const sceneData = await collabAPI.startCollaboration({
+          let sceneData = await collabAPI.startCollaboration({
             roomId: loaded.roomId!,
             roomKey,
             isAutoCollab: true,
           });
 
-          // Apply loaded scene data to canvas
-          if (sceneData?.elements) {
+          console.log(
+            "[Codraw debug] collab join resolved, elements from room:",
+            sceneData?.elements?.length,
+            sceneData,
+          );
+
+          if (sceneData?.elements?.length) {
             excalidrawAPI.updateScene({
               elements: sceneData.elements,
               captureUpdate: CaptureUpdateAction.IMMEDIATELY,
@@ -1057,6 +1066,40 @@ const ExcalidrawWrapper = () => {
             if (sceneData.scrollToContent) {
               excalidrawAPI.scrollToContent();
             }
+          } else if (loaded.data) {
+            console.log(
+              "[Codraw debug] room was empty, falling back to loaded.data, length:",
+              loaded.data.length,
+            );
+            const blob = decodeBase64ToBlob(loaded.data);
+            const restored = await loadFromBlob(blob, null, null);
+            console.log(
+              "[Codraw debug] decoded fallback elements:",
+              restored?.elements?.length,
+              restored,
+            );
+            if (restored?.elements?.length) {
+              excalidrawAPI.updateScene({
+                elements: restored.elements,
+                captureUpdate: CaptureUpdateAction.IMMEDIATELY,
+              });
+              excalidrawAPI.scrollToContent();
+              sceneData = {
+                elements: restored.elements,
+                appState: restored.appState || {},
+                files: restored.files || {},
+              };
+              console.log(
+                "[Codraw debug] applied fallback elements to canvas, count now:",
+                excalidrawAPI.getSceneElements().length,
+              );
+            } else {
+              console.log(
+                "[Codraw debug] fallback decode produced no elements either!",
+              );
+            }
+          } else {
+            console.log("[Codraw debug] no room data AND no loaded.data at all");
           }
 
           collabAPI.setSceneId(sceneId);
@@ -1418,6 +1461,19 @@ const ExcalidrawWrapper = () => {
     // Mark as having unsaved changes for auto-save
     // Skip during logout to prevent saving empty canvas data
     const isLoggingOut = appJotaiStore.get(isLoggingOutAtom);
+
+    // Auto-create a workspace scene on the very first stroke drawn on the
+    // blank canvas, instead of requiring an explicit "+ New Scene" click.
+    if (
+      !currentSceneId &&
+      isAuthenticated &&
+      !isCreatingScene &&
+      !isLoggingOut &&
+      elements.some((el) => !el.isDeleted)
+    ) {
+      handleNewScene(undefined, { keepCurrentContent: true });
+    }
+
     if (currentSceneId && !collabAPI?.isCollaborating() && !isLoggingOut) {
       const currentFiles = excalidrawAPI?.getFiles() || {};
       const currentData = JSON.stringify({
@@ -1521,7 +1577,7 @@ const ExcalidrawWrapper = () => {
   const [isCreatingScene, setIsCreatingScene] = useState(false);
 
   const handleNewScene = useCallback(
-    async (collectionId?: string) => {
+    async (collectionId?: string, options?: { keepCurrentContent?: boolean }) => {
       if (!excalidrawAPI) {
         return;
       }
@@ -1530,6 +1586,8 @@ const ExcalidrawWrapper = () => {
         return;
       }
       setIsCreatingScene(true);
+
+      const keepCurrentContent = options?.keepCurrentContent ?? false;
 
       try {
         const title = `${t(
@@ -1544,7 +1602,9 @@ const ExcalidrawWrapper = () => {
           collectionId: targetCollectionId,
         });
 
-        excalidrawAPI.resetScene();
+        if (!keepCurrentContent) {
+          excalidrawAPI.resetScene();
+        }
         setCurrentSceneId(scene.id);
         setCurrentSceneTitle(title);
 
@@ -1552,7 +1612,9 @@ const ExcalidrawWrapper = () => {
           setActiveCollectionId(targetCollectionId);
         }
 
-        openWorkspaceSidebar();
+        if (!keepCurrentContent) {
+          openWorkspaceSidebar();
+        }
 
         // Switch to canvas mode directly (don't use navigateToCanvas which would
         // dispatch a popstate event and try to reload the scene we just created)
@@ -1564,17 +1626,29 @@ const ExcalidrawWrapper = () => {
           window.history.pushState({ sceneId: scene.id }, "", newUrl);
         }
 
-        const emptySceneData = {
-          type: "excalidraw",
-          version: 2,
-          source: window.location.href,
-          elements: [],
-          appState: {
-            viewBackgroundColor: "#ffffff",
-          },
-          files: {},
-        };
-        const blob = new Blob([JSON.stringify(emptySceneData)], {
+        const initialSceneData = keepCurrentContent
+          ? {
+              type: "excalidraw",
+              version: 2,
+              source: window.location.href,
+              elements: excalidrawAPI.getSceneElements(),
+              appState: {
+                viewBackgroundColor:
+                  excalidrawAPI.getAppState().viewBackgroundColor,
+              },
+              files: excalidrawAPI.getFiles() || {},
+            }
+          : {
+              type: "excalidraw",
+              version: 2,
+              source: window.location.href,
+              elements: [],
+              appState: {
+                viewBackgroundColor: "#ffffff",
+              },
+              files: {},
+            };
+        const blob = new Blob([JSON.stringify(initialSceneData)], {
           type: "application/json",
         });
         await updateSceneData(scene.id, blob);
@@ -1599,6 +1673,7 @@ const ExcalidrawWrapper = () => {
               roomId,
               roomKey,
               isAutoCollab: true,
+              isNewRoom: true,
             });
             collabAPI.setSceneId(scene.id);
             setIsAutoCollabScene(true);
@@ -1611,16 +1686,20 @@ const ExcalidrawWrapper = () => {
           }
         }
 
-        excalidrawAPI.setToast({
-          message: t("workspace.newSceneCreated") || "New scene created",
-        });
+        if (!keepCurrentContent) {
+          excalidrawAPI.setToast({
+            message: t("workspace.newSceneCreated") || "New scene created",
+          });
+        }
         setIsCreatingScene(false);
       } catch (error) {
         console.error("Failed to create new scene:", error);
-        excalidrawAPI.resetScene();
-        setCurrentSceneId(null);
-        setCurrentSceneTitle("Untitled");
-        navigateToCanvas();
+        if (!keepCurrentContent) {
+          excalidrawAPI.resetScene();
+          setCurrentSceneId(null);
+          setCurrentSceneTitle("Untitled");
+          navigateToCanvas();
+        }
         setIsCreatingScene(false);
       }
     },

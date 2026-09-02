@@ -2,6 +2,7 @@ import {
   loginIcon,
   eyeIcon,
   GithubIcon,
+  RedditIcon,
   save,
 } from "@excalidraw/excalidraw/components/icons";
 import { MainMenu } from "@excalidraw/excalidraw/index";
@@ -14,7 +15,7 @@ import type { Theme } from "@excalidraw/element/types";
 
 import { useSetAtom } from "../app-jotai";
 import { LanguageList } from "../app-language/LanguageList";
-import { CODRAW_GITHUB_URL } from "../app_constants";
+import { CODRAW_GITHUB_URL, CODRAW_REDDIT_URL } from "../app_constants";
 import { useAuth } from "../auth";
 
 import { openWorkspaceSidebarAtom } from "./Settings/settingsState";
@@ -81,6 +82,13 @@ export const AppMainMenu: React.FC<{
         aria-label="GitHub"
       >
         GitHub
+      </MainMenu.ItemLink>
+      <MainMenu.ItemLink
+        icon={RedditIcon}
+        href={CODRAW_REDDIT_URL}
+        aria-label="Reddit"
+      >
+        Reddit
       </MainMenu.ItemLink>
 
       {/* Auth section */}

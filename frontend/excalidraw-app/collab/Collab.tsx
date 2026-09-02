@@ -564,7 +564,13 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     existingRoomLinkData:
       | null
       | { roomId: string; roomKey: string }
-      | { roomId: string; roomKey: string; isAutoCollab: true },
+      | { roomId: string; roomKey: string; isAutoCollab: true }
+      | {
+          roomId: string;
+          roomKey: string;
+          isAutoCollab: true;
+          isNewRoom: true;
+        },
   ) => {
     // Check for authenticated user's profile data
     // If user is authenticated, always prefer their profile name/avatar over localStorage
@@ -627,7 +633,18 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       /* webpackChunkName: "socketIoClient" */ "socket.io-client"
     );
 
+    const isNewRoom =
+      !!existingRoomLinkData && "isNewRoom" in existingRoomLinkData;
+
     const fallbackInitializationHandler = () => {
+      if (isNewRoom) {
+        // Nothing exists in room storage yet for a room we just created -
+        // fetching (and resetting the canvas) here would only race with
+        // and discard whatever the user has already started drawing.
+        this.portal.socketInitialized = true;
+        scenePromise.resolve(null);
+        return;
+      }
       // For auto-collab, ALSO fetch scene from room storage - it may have newer data
       // than the backend API (scene.data). Room storage is the source of truth for
       // collaboration scenes.
@@ -656,14 +673,20 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       return null;
     }
 
-    if (existingRoomLinkData) {
-      // When joining an existing room (via link OR auto-collab), clear the canvas first.
-      // This prevents data contamination where elements from the previous scene
-      // get reconciled into the new scene's room storage.
+    if (existingRoomLinkData && !isNewRoom) {
+      // When joining an existing room (via link OR auto-collab on an
+      // already-created scene), clear the canvas first. This prevents data
+      // contamination where elements from the previous scene get reconciled
+      // into the new scene's room storage.
       // The actual scene data will be loaded from room storage via fallbackInitializationHandler.
       this.excalidrawAPI.resetScene();
     } else {
-      // For NEW rooms only: keep current elements and save to room storage
+      // For NEW rooms (either a genuinely new room, or a scene we just
+      // created and are auto-collab-enabling for the first time): keep
+      // whatever the user has already drawn instead of wiping it - the
+      // room has no prior content to contaminate, and resetting here can
+      // race with the user drawing in the gap between scene creation and
+      // this join completing, silently discarding their first strokes.
       const elements = this.excalidrawAPI.getSceneElements().map((element) => {
         if (isImageElement(element) && element.status === "saved") {
           return newElementWith(element, { status: "pending" });

@@ -558,6 +558,18 @@ export const GithubIcon = createIcon(
   modifiedTablerIconProps,
 );
 
+export const RedditIcon = createIcon(
+  <g strokeWidth="1.25">
+    <path d="M10 3.5v2.5" />
+    <circle cx="10" cy="2.5" r="0.9" />
+    <ellipse cx="10" cy="11" rx="7" ry="5.5" />
+    <circle cx="7" cy="10.5" r="1" />
+    <circle cx="13" cy="10.5" r="1" />
+    <path d="M6.5 13c1 1.2 2.2 1.8 3.5 1.8s2.5 -.6 3.5 -1.8" />
+  </g>,
+  modifiedTablerIconProps,
+);
+
 export const DiscordIcon = createIcon(
   <g strokeWidth="1.25">
     <path d="M7.5 10.833a.833.833 0 1 0 0-1.666.833.833 0 0 0 0 1.666ZM12.5 10.833a.833.833 0 1 0 0-1.666.833.833 0 0 0 0 1.666ZM6.25 6.25c2.917-.833 4.583-.833 7.5 0M5.833 13.75c2.917.833 5.417.833 8.334 0" />

@@ -18,7 +18,7 @@ import type { JSX } from "react";
 
 // Codraw: GitHub issues URL
 const CODRAW_GITHUB_ISSUES_URL =
-  "https://github.com/astrateam-net/astradraw-app/issues";
+  "https://github.com/klem-s/astradraw/issues";
 
 const Header = () => (
   <div className="HelpDialog__header">

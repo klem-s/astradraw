@@ -61,6 +61,6 @@ export const isExcalidrawPlusSignedUser = document.cookie.includes(
 );
 
 // Codraw Branding Constants
-export const CODRAW_GITHUB_URL =
-  "https://github.com/astrateam-net/astradraw-app";
+export const CODRAW_GITHUB_URL = "https://github.com/klem-s/astradraw";
 export const CODRAW_GITHUB_ISSUES_URL = `${CODRAW_GITHUB_URL}/issues`;
+export const CODRAW_REDDIT_URL = "https://www.reddit.com/r/codraw/s/zSZ5tg36ti";
