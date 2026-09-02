@@ -1,5 +1,5 @@
 /**
- * Date formatting utilities for AstraDraw.
+ * Date formatting utilities for Codraw.
  */
 
 /**

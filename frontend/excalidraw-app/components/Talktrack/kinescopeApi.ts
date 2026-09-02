@@ -301,7 +301,7 @@ export async function checkVideoStatus(
 }
 
 // Local storage key for recordings
-const RECORDINGS_STORAGE_KEY = "astradraw_talktrack_recordings";
+const RECORDINGS_STORAGE_KEY = "codraw_talktrack_recordings";
 
 /**
  * Save a recording to local storage

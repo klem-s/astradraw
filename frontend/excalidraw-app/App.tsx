@@ -86,7 +86,7 @@ import {
   FIREBASE_STORAGE_PREFIXES,
   STORAGE_KEYS,
   SYNC_BROWSER_TABS_TIMEOUT,
-  ASTRADRAW_GITHUB_URL,
+  CODRAW_GITHUB_URL,
 } from "./app_constants";
 import Collab, {
   collabAPIAtom,
@@ -135,7 +135,7 @@ import { ExcalidrawPlusIframeExport } from "./ExcalidrawPlusIframeExport";
 
 import "./index.scss";
 
-// AstraDraw: ExcalidrawPlusPromoBanner removed
+// Codraw: ExcalidrawPlusPromoBanner removed
 import { AppSidebar } from "./components/AppSidebar";
 import { PresentationMode } from "./components/Presentation";
 import { PenToolbar, getDefaultPenPresets } from "./pens";
@@ -170,7 +170,7 @@ import {
   toggleWorkspaceSidebarAtom,
   // Workspace data atoms
   currentWorkspaceAtom,
-  privateCollectionAtom,
+  defaultCollectionAtom,
   type WorkspaceData,
 } from "./components/Settings";
 
@@ -481,8 +481,8 @@ const ExcalidrawWrapper = () => {
   // Workspace data from Jotai atoms
   const currentWorkspace = useAtomValue(currentWorkspaceAtom);
   const setCurrentWorkspace = useSetAtom(currentWorkspaceAtom);
-  const privateCollection = useAtomValue(privateCollectionAtom);
-  const privateCollectionId = privateCollection?.id || null;
+  const defaultCollection = useAtomValue(defaultCollectionAtom);
+  const defaultCollectionId = defaultCollection?.id || null;
 
   // Auth state for auto-open on login
   const { isAuthenticated } = useAuth();
@@ -629,7 +629,7 @@ const ExcalidrawWrapper = () => {
     toggleCommentMode,
   });
 
-  // Debug logging for UI state (enable with: window.__ASTRADRAW_DEBUG_UI__ = true)
+  // Debug logging for UI state (enable with: window.__CODRAW_DEBUG_UI__ = true)
   useUIDebugLogger(excalidrawAPI);
   useVisibilityDebugLogger();
 
@@ -645,7 +645,7 @@ const ExcalidrawWrapper = () => {
         const target = event.target as HTMLElement;
         const isOnCanvas = target instanceof HTMLCanvasElement;
 
-        // Check if target is inside any AstraDraw UI element
+        // Check if target is inside any Codraw UI element
         const isInsideExcalidraw = target.closest(".excalidraw");
         const isInsideExcalidrawApp = target.closest(".excalidraw-app");
         const isInsideSidebar = target.closest(
@@ -848,7 +848,7 @@ const ExcalidrawWrapper = () => {
           defaultStatus: "published",
         })
         .catch((error) => {
-          console.error("AstraDraw: Failed to load bundled libraries:", error);
+          console.error("Codraw: Failed to load bundled libraries:", error);
         });
     }
   }, [excalidrawAPI]);
@@ -1537,7 +1537,7 @@ const ExcalidrawWrapper = () => {
         )} ${new Date().toLocaleTimeString()}`;
 
         const targetCollectionId =
-          collectionId || privateCollectionId || undefined;
+          collectionId || defaultCollectionId || undefined;
 
         const scene = await createScene({
           title,
@@ -1627,7 +1627,7 @@ const ExcalidrawWrapper = () => {
     [
       excalidrawAPI,
       collabAPI,
-      privateCollectionId,
+      defaultCollectionId,
       navigateToCanvas,
       setActiveCollectionId,
       invalidateScenesCache,
@@ -1738,7 +1738,7 @@ const ExcalidrawWrapper = () => {
 
         const scene = await createScene({
           title,
-          collectionId: privateCollectionId || undefined,
+          collectionId: defaultCollectionId || undefined,
         });
 
         await updateSceneData(scene.id, blob);
@@ -1755,7 +1755,7 @@ const ExcalidrawWrapper = () => {
     excalidrawAPI,
     currentSceneId,
     currentSceneTitle,
-    privateCollectionId,
+    defaultCollectionId,
     setCurrentSceneId,
     setCurrentSceneTitle,
   ]);
@@ -2225,7 +2225,7 @@ const ExcalidrawWrapper = () => {
                 ],
                 perform: () => {
                   window.open(
-                    ASTRADRAW_GITHUB_URL,
+                    CODRAW_GITHUB_URL,
                     "_blank",
                     "noopener noreferrer",
                   );

@@ -29,7 +29,7 @@ const _renderNewElementScene = ({
       scale,
     );
 
-    // AstraDraw: Highlighter pen needs background color when rendering before StaticCanvas
+    // Codraw: Highlighter pen needs background color when rendering before StaticCanvas
     const { isHighlighterPenDrawing = false } = renderConfig;
 
     const context = bootstrapCanvas({

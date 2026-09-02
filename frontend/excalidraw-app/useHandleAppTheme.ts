@@ -1,5 +1,5 @@
 /**
- * Theme Management Hook for AstraDraw
+ * Theme Management Hook for Codraw
  *
  * This hook manages the application theme (light/dark mode) with the following features:
  * - Persists user preference in localStorage
@@ -7,7 +7,7 @@
  * - Keyboard shortcut: Alt+Shift+D to toggle theme
  *
  * DEFAULT THEME: Dark mode
- * AstraDraw defaults to dark mode to showcase the animated galaxy background
+ * Codraw defaults to dark mode to showcase the animated galaxy background
  * on the welcome screen. Users can switch to light mode via preferences.
  *
  * Theme Priority:
@@ -26,17 +26,17 @@ const getDarkThemeMediaQuery = (): MediaQueryList | undefined =>
   window.matchMedia?.("(prefers-color-scheme: dark)");
 
 export const useHandleAppTheme = () => {
-  // Initialize theme from localStorage, defaulting to DARK mode for AstraDraw
+  // Initialize theme from localStorage, defaulting to DARK mode for Codraw
   // This showcases the animated galaxy background on the welcome screen
   const [appTheme, setAppTheme] = useState<Theme | "system">(() => {
     return (
       (localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_THEME) as
         | Theme
         | "system"
-        | null) || THEME.DARK // AstraDraw default: dark mode
+        | null) || THEME.DARK // Codraw default: dark mode
     );
   });
-  const [editorTheme, setEditorTheme] = useState<Theme>(THEME.DARK); // AstraDraw default
+  const [editorTheme, setEditorTheme] = useState<Theme>(THEME.DARK); // Codraw default
 
   useEffect(() => {
     const mediaQuery = getDarkThemeMediaQuery();

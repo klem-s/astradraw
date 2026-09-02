@@ -2,7 +2,7 @@
 set -e
 
 # =============================================================================
-# AstraDraw API Docker Entrypoint
+# Codraw API Docker Entrypoint
 # =============================================================================
 #
 # This script handles container initialization before starting the API server.
@@ -110,7 +110,7 @@ build_database_url() {
 # Main Execution
 # =============================================================================
 
-echo "=== AstraDraw API Starting ==="
+echo "=== Codraw API Starting ==="
 
 # Build and export DATABASE_URL for Prisma CLI
 # The URL is masked in logs to avoid exposing credentials

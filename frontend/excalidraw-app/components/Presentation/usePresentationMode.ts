@@ -8,7 +8,7 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { atom, useAtom, useSetAtom } from "../../app-jotai";
 import { closeWorkspaceSidebarAtom } from "../Settings/settingsState";
 
-// Keep these atoms for PresentationPanel slide ordering (AstraDraw-specific feature)
+// Keep these atoms for PresentationPanel slide ordering (Codraw-specific feature)
 // The core presentation state is now in AppState.presentationMode
 export const slidesAtom = atom<ExcalidrawFrameLikeElement[]>([]);
 
@@ -45,7 +45,7 @@ export const usePresentationMode = ({
   // Local state for slide elements (needed for PresentationPanel)
   const [slides, setSlides] = useAtom(slidesAtom);
 
-  // AstraDraw-specific: workspace sidebar control
+  // Codraw-specific: workspace sidebar control
   const closeWorkspaceSidebar = useSetAtom(closeWorkspaceSidebarAtom);
 
   // Fullscreen state (browser API, not in AppState)
@@ -165,7 +165,7 @@ export const usePresentationMode = ({
     }
   }, []);
 
-  // Start presentation with AstraDraw-specific setup
+  // Start presentation with Codraw-specific setup
   const startPresentation = useCallback(() => {
     if (!excalidrawAPI) {
       return;
@@ -183,13 +183,13 @@ export const usePresentationMode = ({
       return;
     }
 
-    // AstraDraw-specific: Close workspace sidebar before starting
+    // Codraw-specific: Close workspace sidebar before starting
     closeWorkspaceSidebar();
 
-    // AstraDraw-specific: Close default sidebar (right)
+    // Codraw-specific: Close default sidebar (right)
     excalidrawAPI.toggleSidebar({ name: "default", force: false });
 
-    // AstraDraw-specific: Add presentation mode class to body for CSS hiding
+    // Codraw-specific: Add presentation mode class to body for CSS hiding
     document.body.classList.add("excalidraw-presentation-mode");
 
     // Save current state and enter presentation mode
@@ -228,7 +228,7 @@ export const usePresentationMode = ({
     }, 50);
   }, [excalidrawAPI, slides, getFrames, closeWorkspaceSidebar]);
 
-  // End presentation with AstraDraw-specific cleanup
+  // End presentation with Codraw-specific cleanup
   const endPresentation = useCallback(async () => {
     if (!excalidrawAPI || !presentationMode?.active) {
       return;
@@ -243,7 +243,7 @@ export const usePresentationMode = ({
       }
     }
 
-    // AstraDraw-specific: Remove presentation mode class from body
+    // Codraw-specific: Remove presentation mode class from body
     document.body.classList.remove("excalidraw-presentation-mode");
 
     // Clear local slides state

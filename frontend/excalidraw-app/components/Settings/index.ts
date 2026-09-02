@@ -41,6 +41,7 @@ export {
   currentWorkspaceAtom,
   collectionsAtom,
   privateCollectionAtom,
+  defaultCollectionAtom,
   activeCollectionAtom,
   clearWorkspaceDataAtom,
   logoutSignalAtom,

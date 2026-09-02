@@ -1,7 +1,7 @@
 import rough from "roughjs/bin/rough";
 import { getStroke } from "perfect-freehand";
 
-// Import easing functions for custom pen strokes (AstraDraw)
+// Import easing functions for custom pen strokes (Codraw)
 
 import {
   type GlobalPoint,
@@ -449,7 +449,7 @@ const drawElementOnCanvas = (
         rc.draw(fillShape);
       }
 
-      // AstraDraw: Check for outline stroke options in customData
+      // Codraw: Check for outline stroke options in customData
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const strokeOptions = (element.customData as any)?.strokeOptions;
       if (strokeOptions?.hasOutline) {
@@ -1124,7 +1124,7 @@ export function getFreedrawOutlinePoints(element: ExcalidrawFreeDrawElement) {
     ? element.points.map(([x, y], i) => [x, y, element.pressures[i]])
     : [[0, 0, 0.5]];
 
-  // Read custom stroke options from customData (AstraDraw pen system)
+  // Read custom stroke options from customData (Codraw pen system)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const customOptions = (element.customData as any)?.strokeOptions?.options;
 

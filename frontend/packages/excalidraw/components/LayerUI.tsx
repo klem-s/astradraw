@@ -235,7 +235,7 @@ const LayerUI = ({
         alignItems: "center",
       }}
     >
-      {/* AstraDraw: Workspace trigger tunnel (renders before hamburger menu) */}
+      {/* Codraw: Workspace trigger tunnel (renders before hamburger menu) */}
       <tunnels.WorkspaceTriggerTunnel.Out />
       {/* wrapping to Fragment stops React from occasionally complaining
                 about identical Keys */}

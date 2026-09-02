@@ -5,7 +5,7 @@
  * Logs changes to important UI state properties to help diagnose
  * issues where UI elements disappear unexpectedly.
  *
- * To enable: set window.__ASTRADRAW_DEBUG_UI__ = true in browser console
+ * To enable: set window.__CODRAW_DEBUG_UI__ = true in browser console
  */
 
 import { useEffect, useRef } from "react";
@@ -28,13 +28,13 @@ interface UIDebugState {
 
 declare global {
   interface Window {
-    __ASTRADRAW_DEBUG_UI__?: boolean;
+    __CODRAW_DEBUG_UI__?: boolean;
   }
 }
 
 function isDebugEnabled(): boolean {
   return (
-    typeof window !== "undefined" && window.__ASTRADRAW_DEBUG_UI__ === true
+    typeof window !== "undefined" && window.__CODRAW_DEBUG_UI__ === true
   );
 }
 
@@ -85,7 +85,7 @@ export function useUIDebugLogger(
         // Log if container is shifted off-screen
         if (containerRect.left < -10 || containerRect.top < -10) {
           console.log(
-            `%c[AstraDraw UI Debug] Container shifted off-screen!`,
+            `%c[Codraw UI Debug] Container shifted off-screen!`,
             "color: #e74c3c; font-weight: bold",
             {
               containerRect: {
@@ -107,7 +107,7 @@ export function useUIDebugLogger(
 
         if (appRect.left < -10 || appRect.top < -10) {
           console.log(
-            `%c[AstraDraw UI Debug] App container shifted!`,
+            `%c[Codraw UI Debug] App container shifted!`,
             "color: #e74c3c; font-weight: bold",
             {
               appRect: {
@@ -187,7 +187,7 @@ export function useUIDebugLogger(
 
         if (changes.length > 0) {
           console.log(
-            `%c[AstraDraw UI Debug] State changed:`,
+            `%c[Codraw UI Debug] State changed:`,
             "color: #6965db; font-weight: bold",
           );
           changes.forEach((change) => {
@@ -202,7 +202,7 @@ export function useUIDebugLogger(
             currentState.height === 0
           ) {
             console.log(
-              `%c[AstraDraw UI Debug] Full state:`,
+              `%c[Codraw UI Debug] Full state:`,
               "color: #e74c3c; font-weight: bold",
               currentState,
             );
@@ -211,7 +211,7 @@ export function useUIDebugLogger(
         }
       } else {
         console.log(
-          `%c[AstraDraw UI Debug] Initial state:`,
+          `%c[Codraw UI Debug] Initial state:`,
           "color: #27ae60; font-weight: bold",
           currentState,
         );
@@ -269,7 +269,7 @@ export function useVisibilityDebugLogger(): void {
               opacity === "0"
             ) {
               console.log(
-                `%c[AstraDraw UI Debug] Element hidden:`,
+                `%c[Codraw UI Debug] Element hidden:`,
                 "color: #e74c3c; font-weight: bold",
                 {
                   element: target.className,
@@ -296,7 +296,7 @@ export function useVisibilityDebugLogger(): void {
           attributeFilter: ["style", "class"],
         });
         console.log(
-          `%c[AstraDraw UI Debug] DOM observer started`,
+          `%c[Codraw UI Debug] DOM observer started`,
           "color: #27ae60; font-weight: bold",
         );
       }

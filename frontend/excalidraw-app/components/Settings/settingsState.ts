@@ -101,7 +101,7 @@ export const sidebarModeAtom = atom<SidebarMode>((get) => {
 /**
  * localStorage key for workspace sidebar preference
  */
-const WORKSPACE_SIDEBAR_PREF_KEY = "astradraw_workspace_sidebar_open";
+const WORKSPACE_SIDEBAR_PREF_KEY = "codraw_workspace_sidebar_open";
 
 /**
  * Workspace sidebar open state
@@ -383,16 +383,30 @@ export const privateCollectionAtom = atom<CollectionData | null>((get) => {
 });
 
 /**
+ * Derived atom: Default landing collection for new/unfiled scenes.
+ * Prefers the private collection (legacy personal workspaces); falls back
+ * to the first collection in the workspace (e.g. the "Default" collection
+ * created for new shared workspaces) so scenes always have somewhere to save.
+ */
+export const defaultCollectionAtom = atom<CollectionData | null>((get) => {
+  const privateCol = get(privateCollectionAtom);
+  if (privateCol) {
+    return privateCol;
+  }
+  const collections = get(collectionsAtom);
+  return collections[0] || null;
+});
+
+/**
  * Derived atom: Get the active collection object based on activeCollectionIdAtom
- * Falls back to private collection if no active collection is set
+ * Falls back to the default landing collection if no active collection is set
  */
 export const activeCollectionAtom = atom<CollectionData | null>((get) => {
   const activeId = get(activeCollectionIdAtom);
   const collections = get(collectionsAtom);
-  const privateCol = get(privateCollectionAtom);
 
   if (!activeId) {
-    return privateCol;
+    return get(defaultCollectionAtom);
   }
   return collections.find((c) => c.id === activeId) || null;
 });

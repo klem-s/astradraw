@@ -8,8 +8,8 @@ import { getSecret } from '../utils/secrets';
 // Custom extractor that tries cookie first, then Authorization header
 const cookieOrHeaderExtractor = (req: Request): string | null => {
   // Try cookie first
-  if (req?.cookies?.astradraw_token) {
-    return req.cookies.astradraw_token;
+  if (req?.cookies?.codraw_token) {
+    return req.cookies.codraw_token;
   }
 
   // Fall back to Authorization header

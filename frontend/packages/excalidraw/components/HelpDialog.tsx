@@ -16,8 +16,8 @@ import "./HelpDialog.scss";
 
 import type { JSX } from "react";
 
-// AstraDraw: GitHub issues URL
-const ASTRADRAW_GITHUB_ISSUES_URL =
+// Codraw: GitHub issues URL
+const CODRAW_GITHUB_ISSUES_URL =
   "https://github.com/astrateam-net/astradraw-app/issues";
 
 const Header = () => (
@@ -38,7 +38,7 @@ const Header = () => (
     </span>
     <a
       className="HelpDialog__btn"
-      href={ASTRADRAW_GITHUB_ISSUES_URL}
+      href={CODRAW_GITHUB_ISSUES_URL}
       target="_blank"
       rel="noopener noreferrer"
     >

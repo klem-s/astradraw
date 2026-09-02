@@ -234,7 +234,7 @@ const _renderStaticScene = ({
     scale,
   );
 
-  // AstraDraw: Use transparent background when highlighter pen is drawing
+  // Codraw: Use transparent background when highlighter pen is drawing
   // (the NewElementCanvas renders before this with the actual background)
   const context = bootstrapCanvas({
     canvas,

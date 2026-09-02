@@ -6,9 +6,9 @@ export const ExcalidrawPlusPromoBanner = ({
   return (
     <span
       className="plus-banner plus-banner--disabled"
-      title="AstraDraw - Coming soon"
+      title="Codraw - Coming soon"
     >
-      AstraDraw
+      Codraw
     </span>
   );
 };

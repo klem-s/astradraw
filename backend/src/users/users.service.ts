@@ -28,7 +28,8 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Create a default personal workspace for a new user
+   * Create a default shared workspace for a new user (they become OWNER
+   * and can invite teammates into it right away)
    */
   private async createDefaultWorkspace(
     userId: string,
@@ -56,24 +57,23 @@ export class UsersService {
     const capitalizedUsername =
       username.charAt(0).toUpperCase() + username.slice(1);
 
-    // Create workspace with user as admin
     await this.prisma.workspace.create({
       data: {
         name: `${capitalizedUsername}'s Workspace`,
         slug,
-        type: WorkspaceType.PERSONAL,
+        type: WorkspaceType.SHARED,
         members: {
           create: {
             userId,
             role: WorkspaceRole.OWNER,
           },
         },
-        // Also create a default private collection for personal scenes
+        // Default landing collection so new scenes have somewhere to save to
         collections: {
           create: {
-            name: 'Private',
-            icon: '🔒',
-            isPrivate: true,
+            name: 'Default',
+            icon: '📁',
+            isPrivate: false,
             userId,
           },
         },
@@ -81,7 +81,7 @@ export class UsersService {
     });
 
     this.logger.log(
-      `Created default workspace "${slug}" for user ${userEmail}`,
+      `Created default shared workspace "${slug}" for user ${userEmail}`,
     );
   }
 
@@ -154,9 +154,6 @@ export class UsersService {
 
     // Check if user should be promoted to super admin based on SUPERADMIN_EMAILS
     user = await this.promoteIfConfiguredSuperAdmin(user);
-
-    // Ensure user has at least one workspace (for existing users without workspace)
-    await this.ensureUserHasWorkspace(user.id, user.email);
 
     return user;
   }
@@ -280,19 +277,6 @@ export class UsersService {
       return updatedUser;
     }
     return user;
-  }
-
-  /**
-   * Ensure user has at least one workspace (creates default if none exist)
-   */
-  async ensureUserHasWorkspace(userId: string, email: string): Promise<void> {
-    const workspaceCount = await this.prisma.workspaceMember.count({
-      where: { userId },
-    });
-
-    if (workspaceCount === 0) {
-      await this.createDefaultWorkspace(userId, email);
-    }
   }
 
   /**

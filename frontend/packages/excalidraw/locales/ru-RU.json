@@ -56,7 +56,7 @@
     "arrowtype_elbowed": "Прямоугольная стрелка",
     "fontSize": "Размер шрифта",
     "fontFamily": "Семейство шрифтов",
-    "addWatermark": "Добавить «Создано в AstraDraw»",
+    "addWatermark": "Добавить «Создано в Codraw»",
     "handDrawn": "От руки",
     "normal": "Обычный",
     "code": "Код",
@@ -91,7 +91,7 @@
     "untitled": "Безымянный",
     "name": "Имя",
     "yourName": "Ваше имя",
-    "madeWithExcalidraw": "Сделано в AstraDraw",
+    "madeWithExcalidraw": "Сделано в Codraw",
     "group": "Сгруппировать выделение",
     "ungroup": "Разделить выделение",
     "collaborators": "Участники",
@@ -121,7 +121,7 @@
     "toggleTheme": "Переключить светлую/тёмную тему",
     "theme": "Тема",
     "personalLib": "Личная библиотека",
-    "excalidrawLib": "Библиотека AstraDraw",
+    "excalidrawLib": "Библиотека Codraw",
     "decreaseFontSize": "Уменьшить шрифт",
     "increaseFontSize": "Увеличить шрифт",
     "unbindText": "Отвязать текст",
@@ -163,7 +163,7 @@
     "zoomToFitViewport": "Масштабировать до области просмотра",
     "zoomToFitSelection": "Увеличить до выделенного",
     "zoomToFit": "Приблизьте все элементы",
-    "installPWA": "Установить AstraDraw локально (PWA)",
+    "installPWA": "Установить Codraw локально (PWA)",
     "autoResize": "Включить автоизменение размера текста",
     "imageCropping": "Обрезка изображения",
     "unCroppedDimension": "Необрезанный размер",
@@ -257,7 +257,7 @@
     "cannotExportEmptyCanvas": "Не может экспортировать пустой холст.",
     "couldNotCopyToClipboard": "Не удалось скопировать в буфер обмена.",
     "decryptFailed": "Не удалось расшифровать данные.",
-    "uploadedSecurly": "Загружаемые данные защищена сквозным шифрованием, что означает, что сервер AstraDraw и третьи стороны не могут прочитать содержимое.",
+    "uploadedSecurly": "Загружаемые данные защищена сквозным шифрованием, что означает, что сервер Codraw и третьи стороны не могут прочитать содержимое.",
     "loadSceneOverridePrompt": "Загрузка рисунка приведёт к замене имеющегося содержимого. Вы хотите продолжить?",
     "collabStopOverridePrompt": "Остановка сессии перезапишет ваш предыдущий, локально сохранённый рисунок. Вы уверены? \n\n(Если вы хотите оставить ваш локальный рисунок, просто закройте вкладку браузера).",
     "errorAddingToLibrary": "Не удалось добавить объект в библиотеку",
@@ -265,7 +265,7 @@
     "confirmAddLibrary": "Будут добавлены фигуры ({{numShapes}}) в вашу библиотеку. Продолжить?",
     "imageDoesNotContainScene": "Это изображение не содержит данных сцены. Вы включили встраивание сцены во время экспорта?",
     "cannotRestoreFromImage": "Сцена не может быть восстановлена из этого изображения",
-    "invalidSceneUrl": "Невозможно импортировать сцену с предоставленного URL. Неверный формат, или не содержит верных AstraDraw JSON данных.",
+    "invalidSceneUrl": "Невозможно импортировать сцену с предоставленного URL. Неверный формат, или не содержит верных Codraw JSON данных.",
     "resetLibrary": "Это очистит вашу библиотеку. Вы уверены?",
     "removeItemsFromsLibrary": "Удалить объекты ({{count}}) из библиотеки?",
     "invalidEncryptionKey": "Ключ шифрования должен состоять из 22 символов. Одновременное редактирование отключено.",
@@ -321,7 +321,7 @@
     "laser": "Лазерная указка",
     "hand": "Рука (перемещение холста)",
     "extraTools": "Дополнительные инструменты",
-    "mermaidToExcalidraw": "Mermaid в AstraDraw",
+    "mermaidToExcalidraw": "Mermaid в Codraw",
     "convertElementType": "Переключение типа формы"
   },
   "element": {
@@ -405,7 +405,7 @@
     "desc_inProgressIntro": "Сеанс совместной работы запущен.",
     "desc_shareLink": "Поделитесь этой ссылкой со всеми участниками:",
     "desc_exitSession": "Завершив сеанс, вы выйдете из комнаты, но сможете продолжить работать с документом локально. Это не повлияет на работу других пользователей — они смогут продолжить совместную работу с их версией документа.",
-    "shareTitle": "Присоединиться к активной совместной сессии на AstraDraw"
+    "shareTitle": "Присоединиться к активной совместной сессии на Codraw"
   },
   "errorDialog": {
     "title": "Ошибка"
@@ -417,9 +417,9 @@
     "link_title": "Поделитесь ссылкой",
     "link_details": "Экспорт ссылки только для чтения.",
     "link_button": "Экспорт в ссылку",
-    "excalidrawplus_description": "Сохраните сцену в ваше рабочее пространство AstraDraw+.",
+    "excalidrawplus_description": "Сохраните сцену в ваше рабочее пространство Codraw+.",
     "excalidrawplus_button": "Экспорт",
-    "excalidrawplus_exportError": "Не удалось экспортировать в AstraDraw+ на данный момент..."
+    "excalidrawplus_exportError": "Не удалось экспортировать в Codraw+ на данный момент..."
   },
   "helpDialog": {
     "blog": "Прочитайте наш блог",
@@ -521,8 +521,8 @@
     }
   },
   "encrypted": {
-    "tooltip": "Ваши данные защищены сквозным (End-to-end) шифрованием. Серверы AstraDraw никогда не получат доступ к ним.",
-    "link": "Запись блога о сквозном шифровании в AstraDraw"
+    "tooltip": "Ваши данные защищены сквозным (End-to-end) шифрованием. Серверы Codraw никогда не получат доступ к ним.",
+    "link": "Запись блога о сквозном шифровании в Codraw"
   },
   "stats": {
     "angle": "Угол",
@@ -576,7 +576,7 @@
   "welcomeScreen": {
     "app": {
       "center_heading": "Пространство для путешествий сквозь галактики идей ✨",
-      "center_heading_plus": "Хотите перейти на AstraDraw+?",
+      "center_heading_plus": "Хотите перейти на Codraw+?",
       "menuHint": "Экспорт, настройки, языки, ..."
     },
     "defaults": {
@@ -607,9 +607,9 @@
         "description": "Экспортировать данные сцены в файл, из которого можно импортировать позже."
       },
       "excalidrawPlus": {
-        "title": "AstraDraw+",
-        "button": "Экспорт в AstraDraw+",
-        "description": "Сохраните сцену в ваше рабочее пространство AstraDraw+."
+        "title": "Codraw+",
+        "button": "Экспорт в Codraw+",
+        "description": "Сохраните сцену в ваше рабочее пространство Codraw+."
       }
     },
     "modal": {
@@ -626,9 +626,9 @@
     }
   },
   "mermaid": {
-    "title": "Из Mermaid в AstraDraw",
+    "title": "Из Mermaid в Codraw",
     "button": "Вставить",
-    "description": "В настоящее время поддерживаются только <flowchartLink>блок-схемы</flowchartLink>, <sequenceLink>диаграммы последовательности</sequenceLink> и <classLink>диаграммы классов</classLink>. Другие типы будут отображаться в виде изображения в AstraDraw.",
+    "description": "В настоящее время поддерживаются только <flowchartLink>блок-схемы</flowchartLink>, <sequenceLink>диаграммы последовательности</sequenceLink> и <classLink>диаграммы классов</classLink>. Другие типы будут отображаться в виде изображения в Codraw.",
     "syntax": "Синтаксис Mermaid",
     "preview": "Предпросмотр"
   },
@@ -686,7 +686,7 @@
     "startPresentation": "Начать презентацию",
     "endPresentation": "Завершить презентацию",
     "slide": "Слайд",
-    "noFramesTitle": "Создавайте презентации с AstraDraw",
+    "noFramesTitle": "Создавайте презентации с Codraw",
     "noFramesDescription": "Добавьте фреймы на холст для создания слайдов. Каждый фрейм становится слайдом в вашей презентации.",
     "noFramesStep1": "Выберите инструмент \"Фрейм\" на панели инструментов",
     "noFramesStep2": "Нарисуйте фреймы вокруг содержимого",
@@ -1022,7 +1022,7 @@
     }
   },
   "comments": {
-    "promoTitle": "Комментируйте с AstraDraw",
+    "promoTitle": "Комментируйте с Codraw",
     "comingSoon": "Скоро",
     "addComment": "Добавить комментарий",
     "previousThread": "Предыдущая ветка",

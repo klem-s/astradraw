@@ -7,18 +7,18 @@ import { useI18n } from "@excalidraw/excalidraw/i18n";
 import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
 
-import { AstradrawLogo } from "./AstradrawLogo";
+import { CodrawLogo } from "./CodrawLogo";
 
-// AstraDraw: Export functionality disabled until user accounts are implemented
+// Codraw: Export functionality disabled until user accounts are implemented
 export const exportToExcalidrawPlus = async (
   _elements: readonly NonDeletedExcalidrawElement[],
   _appState: Partial<AppState>,
   _files: BinaryFiles,
   _name: string,
 ) => {
-  // To be implemented when AstraDraw+ user functionality is ready
+  // To be implemented when Codraw+ user functionality is ready
   // eslint-disable-next-line no-console
-  console.log("AstraDraw+ export: Coming soon");
+  console.log("Codraw+ export: Coming soon");
 };
 
 export const ExportToExcalidrawPlus: React.FC<{
@@ -33,14 +33,14 @@ export const ExportToExcalidrawPlus: React.FC<{
   return (
     <Card color="primary">
       <div className="Card-icon">
-        <AstradrawLogo
+        <CodrawLogo
           size="xs"
           style={{
             [`--color-logo-icon` as any]: "#fff",
           }}
         />
       </div>
-      <h2>AstraDraw+</h2>
+      <h2>Codraw+</h2>
       <div className="Card-details">
         {t("exportDialog.excalidrawplus_description")}
       </div>

@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 /**
- * Query client with default options for AstraDraw.
+ * Query client with default options for Codraw.
  *
  * Default settings:
  * - staleTime: 5 minutes - data is considered fresh for 5 min

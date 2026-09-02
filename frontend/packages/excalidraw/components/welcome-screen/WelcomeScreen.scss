@@ -162,7 +162,7 @@
   // GALAXY BACKGROUND - "Space for journeys through galaxies of ideas"
   // ============================================================================
   //
-  // AstraDraw's animated welcome screen background creates an immersive
+  // Codraw's animated welcome screen background creates an immersive
   // "space journey" experience that matches our slogan.
   //
   // FEATURES:
@@ -200,38 +200,38 @@
       height: 200%;
       z-index: -2;
       background:
-        // Main purple nebula - top left
+        // Main coral nebula - top left
         radial-gradient(
           ellipse 100% 100% at 5% 15%,
-          rgba(103, 76, 220, 0.35) 0%,
-          rgba(80, 50, 180, 0.15) 30%,
+          rgba(255, 107, 91, 0.35) 0%,
+          rgba(210, 80, 65, 0.15) 30%,
           transparent 60%
         ),
-        // Blue nebula - top right
+        // Amber nebula - top right
         radial-gradient(
             ellipse 90% 90% at 95% 5%,
-            rgba(30, 140, 229, 0.3) 0%,
-            rgba(20, 100, 200, 0.1) 35%,
+            rgba(255, 176, 32, 0.3) 0%,
+            rgba(210, 140, 20, 0.1) 35%,
             transparent 60%
           ),
-        // Deep purple - bottom left
+        // Deep coral-pink - bottom left
         radial-gradient(
             ellipse 80% 80% at 10% 95%,
-            rgba(140, 76, 220, 0.25) 0%,
-            rgba(100, 50, 180, 0.1) 30%,
+            rgba(255, 138, 101, 0.25) 0%,
+            rgba(210, 100, 70, 0.1) 30%,
             transparent 55%
           ),
-        // Cyan glow - bottom right
+        // Golden glow - bottom right
         radial-gradient(
             ellipse 85% 85% at 90% 90%,
-            rgba(30, 180, 229, 0.2) 0%,
-            rgba(20, 140, 200, 0.08) 35%,
+            rgba(255, 196, 66, 0.2) 0%,
+            rgba(210, 150, 40, 0.08) 35%,
             transparent 55%
           ),
         // Center subtle glow
         radial-gradient(
             ellipse 50% 50% at 50% 50%,
-            rgba(80, 60, 180, 0.08) 0%,
+            rgba(255, 140, 80, 0.08) 0%,
             transparent 50%
           );
       animation: nebula-float 60s ease-in-out infinite alternate;
@@ -468,16 +468,16 @@
     // Size: large enough to create ambient glow, not too large to overwhelm
     width: 400px;
     height: 400px;
-    // Radial gradient: purple/blue brand colors fading to transparent
+    // Radial gradient: coral/amber brand colors fading to transparent
     // Very subtle opacity to create "feeling" rather than obvious effect
     background: radial-gradient(
       circle,
-      rgba(103, 76, 220, 0.25) 0%,
-      // Purple center (brand color)
-      rgba(80, 100, 220, 0.15) 20%,
-      // Purple-blue blend
-      rgba(30, 140, 229, 0.08) 40%,
-      // Blue (brand color)
+      rgba(255, 107, 91, 0.25) 0%,
+      // Coral center (brand color)
+      rgba(255, 140, 60, 0.15) 20%,
+      // Coral-amber blend
+      rgba(255, 176, 32, 0.08) 40%,
+      // Amber (brand color)
       transparent 70% // Fade to transparent
     );
     // Behind the logo content
@@ -513,7 +513,7 @@
     font-size: 1.35rem;
     text-align: center;
     color: var(--color-gray-60);
-    // Override excalifont for AstraDraw slogan - use Alexandria to match logo
+    // Override excalifont for Codraw slogan - use Alexandria to match logo
     font-family: "Alexandria", sans-serif !important;
     font-weight: 100;
     letter-spacing: 0.02em;

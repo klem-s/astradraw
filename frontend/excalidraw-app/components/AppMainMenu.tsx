@@ -14,7 +14,7 @@ import type { Theme } from "@excalidraw/element/types";
 
 import { useSetAtom } from "../app-jotai";
 import { LanguageList } from "../app-language/LanguageList";
-import { ASTRADRAW_GITHUB_URL } from "../app_constants";
+import { CODRAW_GITHUB_URL } from "../app_constants";
 import { useAuth } from "../auth";
 
 import { openWorkspaceSidebarAtom } from "./Settings/settingsState";
@@ -77,7 +77,7 @@ export const AppMainMenu: React.FC<{
       <MainMenu.Separator />
       <MainMenu.ItemLink
         icon={GithubIcon}
-        href={ASTRADRAW_GITHUB_URL}
+        href={CODRAW_GITHUB_URL}
         aria-label="GitHub"
       >
         GitHub

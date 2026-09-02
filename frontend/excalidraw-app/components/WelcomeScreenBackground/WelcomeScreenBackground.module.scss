@@ -22,7 +22,7 @@
  * - 4 blobs with different sizes, positions, and animation timings
  * - Each blob floats in a unique pattern (float1, float2, float3, float4)
  * - Blurred with filter: blur(100px) for soft nebula effect
- * - Uses AstraDraw brand colors: purple (#674CDC) and blue (#1E8CE5)
+ * - Uses Codraw brand colors: coral (#FF6B5B) and amber (#FFB020)
  *
  * VISIBILITY:
  * - Only visible in dark mode (component returns null in light mode)
@@ -60,7 +60,7 @@
   // Removed mix-blend-mode: screen - it makes colors invisible on dark backgrounds
 }
 
-// Blob 1 - Large purple, top-left
+// Blob 1 - Large coral, top-left
 .blob1 {
   width: 60vw;
   height: 60vw;
@@ -70,14 +70,14 @@
   left: -10%;
   background: radial-gradient(
     circle,
-    rgba(103, 76, 220, 0.8) 0%,
-    rgba(103, 76, 220, 0.4) 40%,
+    rgba(255, 107, 91, 0.8) 0%,
+    rgba(255, 107, 91, 0.4) 40%,
     transparent 70%
   );
   animation: float1 45s ease-in-out infinite;
 }
 
-// Blob 2 - Medium blue, top-right
+// Blob 2 - Medium amber, top-right
 .blob2 {
   width: 50vw;
   height: 50vw;
@@ -87,14 +87,14 @@
   right: -15%;
   background: radial-gradient(
     circle,
-    rgba(30, 140, 229, 0.8) 0%,
-    rgba(30, 140, 229, 0.4) 40%,
+    rgba(255, 176, 32, 0.8) 0%,
+    rgba(255, 176, 32, 0.4) 40%,
     transparent 70%
   );
   animation: float2 50s ease-in-out infinite;
 }
 
-// Blob 3 - Small purple-pink, bottom-left
+// Blob 3 - Small coral-pink, bottom-left
 .blob3 {
   width: 40vw;
   height: 40vw;
@@ -104,14 +104,14 @@
   left: 10%;
   background: radial-gradient(
     circle,
-    rgba(140, 76, 220, 0.7) 0%,
-    rgba(103, 76, 220, 0.3) 40%,
+    rgba(255, 138, 101, 0.7) 0%,
+    rgba(255, 107, 91, 0.3) 40%,
     transparent 70%
   );
   animation: float3 55s ease-in-out infinite;
 }
 
-// Blob 4 - Large blue-cyan, bottom-right
+// Blob 4 - Large golden-amber, bottom-right
 .blob4 {
   width: 55vw;
   height: 55vw;
@@ -121,8 +121,8 @@
   right: -5%;
   background: radial-gradient(
     circle,
-    rgba(30, 180, 229, 0.6) 0%,
-    rgba(30, 140, 229, 0.3) 40%,
+    rgba(255, 196, 66, 0.6) 0%,
+    rgba(255, 176, 32, 0.3) 40%,
     transparent 70%
   );
   animation: float4 60s ease-in-out infinite;

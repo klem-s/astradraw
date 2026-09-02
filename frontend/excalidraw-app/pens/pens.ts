@@ -1,7 +1,7 @@
 import type { PenStyle, PenType } from "@excalidraw/excalidraw/types";
 
 /**
- * Default pen presets for Astradraw
+ * Default pen presets for Codraw
  * Based on the Obsidian Excalidraw plugin pen configurations
  */
 export const PENS: Record<PenType, PenStyle> = {

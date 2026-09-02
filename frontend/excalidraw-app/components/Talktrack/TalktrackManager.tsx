@@ -148,9 +148,9 @@ export const TalktrackManager: React.FC<TalktrackManagerProps> = ({
       const blob = await recorderRef.current.stop();
       const duration = recordingState.duration;
 
-      // Generate title with timestamp (prefixed with AstraDraw for easy identification in Kinescope)
+      // Generate title with timestamp (prefixed with Codraw for easy identification in Kinescope)
       const now = new Date();
-      const title = `AstraDraw Recording ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+      const title = `Codraw Recording ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
 
       // Show uploading state
       setIsUploading(true);

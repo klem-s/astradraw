@@ -317,7 +317,7 @@ function generateAnalysis(
 function generateMarkdownReport(): string {
   const report = generateReport();
 
-  let md = `# AstraDraw Collaboration Profiling Report\n\n`;
+  let md = `# Codraw Collaboration Profiling Report\n\n`;
   md += `Generated: ${report.generatedAt}\n`;
   md += `Duration: ${report.durationSeconds.toFixed(1)} seconds\n`;
   md += `User Agent: ${report.userAgent}\n\n`;

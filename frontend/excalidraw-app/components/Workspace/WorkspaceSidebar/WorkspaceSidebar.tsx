@@ -129,7 +129,6 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   const {
     isLoading: isCollectionsLoading,
     activeCollectionId,
-    privateCollection,
     activeCollection,
     loadCollections,
     createCollection,
@@ -200,12 +199,12 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
     }
   }, [isOpen, isAuthenticated, loadWorkspaces]);
 
-  // Notify parent when workspace changes with private collection
+  // Notify parent when workspace changes with the default landing collection
   useEffect(() => {
-    if (currentWorkspace && onWorkspaceChange && privateCollection) {
-      onWorkspaceChange(currentWorkspace, privateCollection.id);
+    if (currentWorkspace && onWorkspaceChange && activeCollection) {
+      onWorkspaceChange(currentWorkspace, activeCollection.id);
     }
-  }, [currentWorkspace, privateCollection, onWorkspaceChange]);
+  }, [currentWorkspace, activeCollection, onWorkspaceChange]);
 
   // Filter scenes by search query
   const filteredScenes = useMemo(() => {

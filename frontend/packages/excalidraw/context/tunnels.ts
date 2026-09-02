@@ -6,7 +6,7 @@ export type Tunnel = ReturnType<typeof tunnel>;
 
 type TunnelsContextValue = {
   MainMenuTunnel: Tunnel;
-  WorkspaceTriggerTunnel: Tunnel; // AstraDraw: Workspace sidebar trigger (before hamburger menu)
+  WorkspaceTriggerTunnel: Tunnel; // Codraw: Workspace sidebar trigger (before hamburger menu)
   WelcomeScreenMenuHintTunnel: Tunnel;
   WelcomeScreenToolbarHintTunnel: Tunnel;
   WelcomeScreenHelpHintTunnel: Tunnel;
@@ -32,7 +32,7 @@ export const useInitializeTunnels = () => {
   return React.useMemo((): TunnelsContextValue => {
     return {
       MainMenuTunnel: tunnel(),
-      WorkspaceTriggerTunnel: tunnel(), // AstraDraw: Workspace sidebar trigger
+      WorkspaceTriggerTunnel: tunnel(), // Codraw: Workspace sidebar trigger
       WelcomeScreenMenuHintTunnel: tunnel(),
       WelcomeScreenToolbarHintTunnel: tunnel(),
       WelcomeScreenHelpHintTunnel: tunnel(),

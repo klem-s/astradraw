@@ -1,5 +1,5 @@
 /**
- * Test utilities for AstraDraw custom components and hooks.
+ * Test utilities for Codraw custom components and hooks.
  *
  * Provides:
  * - React Query test setup with fresh QueryClient per test

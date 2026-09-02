@@ -1894,7 +1894,7 @@ class App extends React.Component<AppProps, AppState> {
 
     const firstSelectedElement = selectedElements[0];
 
-    // AstraDraw: Detect if current drawing is a highlighter pen (should render behind other elements)
+    // Codraw: Detect if current drawing is a highlighter pen (should render behind other elements)
     const isHighlighterPenDrawing =
       this.state.newElement?.customData?.strokeOptions?.highlighter;
 
@@ -2097,7 +2097,7 @@ class App extends React.Component<AppProps, AppState> {
                             }}
                           />
                         )}
-                        {/* AstraDraw: Highlighter pen strokes render BEFORE StaticCanvas (behind other elements) */}
+                        {/* Codraw: Highlighter pen strokes render BEFORE StaticCanvas (behind other elements) */}
                         {this.state.newElement && isHighlighterPenDrawing && (
                           <NewElementCanvas
                             appState={this.state}
@@ -2145,7 +2145,7 @@ class App extends React.Component<AppProps, AppState> {
                             isHighlighterPenDrawing,
                           }}
                         />
-                        {/* AstraDraw: Normal strokes render AFTER StaticCanvas (on top of other elements) */}
+                        {/* Codraw: Normal strokes render AFTER StaticCanvas (on top of other elements) */}
                         {this.state.newElement && !isHighlighterPenDrawing && (
                           <NewElementCanvas
                             appState={this.state}
@@ -8271,7 +8271,7 @@ class App extends React.Component<AppProps, AppState> {
       y: gridY,
     });
 
-    // Custom pen stroke options (AstraDraw)
+    // Custom pen stroke options (Codraw)
     const strokeOptions = this.state.currentStrokeOptions;
     // constantPressure means ignore hardware pressure - use simulated uniform pressure
     const simulatePressure = strokeOptions?.constantPressure
@@ -8292,7 +8292,7 @@ class App extends React.Component<AppProps, AppState> {
       roundness: null,
       simulatePressure,
       locked: false,
-      // Store custom pen options in customData (AstraDraw)
+      // Store custom pen options in customData (Codraw)
       ...(strokeOptions ? { customData: { strokeOptions } } : {}),
       frameId: topLayerFrame ? topLayerFrame.id : null,
       points: [pointFrom<LocalPoint>(0, 0)],
@@ -8301,7 +8301,7 @@ class App extends React.Component<AppProps, AppState> {
         : [strokeOptions?.constantPressure ? 1 : event.pressure],
     });
 
-    // AstraDraw: Highlighter/marker pens should be inserted at the back (behind other elements)
+    // Codraw: Highlighter/marker pens should be inserted at the back (behind other elements)
     // so they don't cover text or other objects when drawing over them
     if (strokeOptions?.highlighter) {
       this.scene.insertElementAtIndex(element, 0);
@@ -9606,7 +9606,7 @@ class App extends React.Component<AppProps, AppState> {
             lastPoint && lastPoint[0] === dx && lastPoint[1] === dy;
 
           if (!discardPoint) {
-            // Use constant pressure (1) if pen has constantPressure enabled (AstraDraw)
+            // Use constant pressure (1) if pen has constantPressure enabled (Codraw)
             const strokeOptions = this.state.currentStrokeOptions;
             const pressures = newElement.simulatePressure
               ? newElement.pressures
@@ -10046,7 +10046,7 @@ class App extends React.Component<AppProps, AppState> {
           dx += 0.0001;
         }
 
-        // Use constant pressure (1) if pen has constantPressure enabled (AstraDraw)
+        // Use constant pressure (1) if pen has constantPressure enabled (Codraw)
         const strokeOptions = this.state.currentStrokeOptions;
         const pressures = newElement.simulatePressure
           ? []

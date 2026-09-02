@@ -206,10 +206,10 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: {
-          short_name: "AstraDraw",
-          name: "AstraDraw",
+          short_name: "Codraw",
+          name: "Codraw",
           description:
-            "AstraDraw is a whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.",
+            "Codraw is a whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.",
           icons: [
             {
               src: "android-chrome-192x192.png",
@@ -233,7 +233,7 @@ export default defineConfig(({ mode }) => {
             },
           ],
           start_url: "/",
-          id: "astradraw",
+          id: "codraw",
           display: "standalone",
           theme_color: "#121212",
           background_color: "#ffffff",

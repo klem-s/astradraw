@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 
 /**
- * Toast notification utilities for AstraDraw.
+ * Toast notification utilities for Codraw.
  *
  * Provides a centralized way to show success, error, and loading notifications.
  * Replaces the duplicated showSuccess() functions and alert() calls throughout the app.

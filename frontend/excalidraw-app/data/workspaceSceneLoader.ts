@@ -73,7 +73,7 @@ export async function getCollaborationCredentials(
 
 /**
  * Public, unauthenticated lookup used to join a live collaboration room
- * from a share link, without an AstraDraw account. Only succeeds if the
+ * from a share link, without a Codraw account. Only succeeds if the
  * scene owner has already enabled collaboration on that scene.
  */
 export async function getRoomInfo(

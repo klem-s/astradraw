@@ -1,5 +1,5 @@
 /**
- * URL Router for AstraDraw
+ * URL Router for Codraw
  *
  * Handles URL-based navigation, parsing URLs to determine the current view,
  * and building URLs for navigation actions.

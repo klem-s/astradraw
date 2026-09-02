@@ -37,7 +37,7 @@ export type StaticCanvasRenderConfig = {
   embedsValidationStatus: EmbedsValidationStatus;
   elementsPendingErasure: ElementsPendingErasure;
   pendingFlowchartNodes: PendingExcalidrawElements | null;
-  /** AstraDraw: When true, highlighter pen is being drawn - affects canvas background handling */
+  /** Codraw: When true, highlighter pen is being drawn - affects canvas background handling */
   isHighlighterPenDrawing?: boolean;
 };
 

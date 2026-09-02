@@ -5,7 +5,7 @@ import React, { useState } from "react";
 
 import { useAuth } from "../auth";
 
-import { AstradrawLogo } from "./AstradrawLogo";
+import { CodrawLogo } from "./CodrawLogo";
 import { WelcomeScreenBackground } from "./WelcomeScreenBackground";
 import { LoginDialog } from "./Workspace/LoginDialog";
 
@@ -39,7 +39,7 @@ export const AppWelcomeScreen: React.FC<{
         <WelcomeScreen.Hints.HelpHint />
         <WelcomeScreen.Center>
           <WelcomeScreen.Center.Logo>
-            <AstradrawLogo size="large" withText />
+            <CodrawLogo size="large" withText />
           </WelcomeScreen.Center.Logo>
           <WelcomeScreen.Center.Heading>
             {headingContent}

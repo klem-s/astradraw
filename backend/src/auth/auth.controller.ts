@@ -56,7 +56,7 @@ export class AuthController {
     });
 
     // Set JWT as HttpOnly cookie
-    res.cookie('astradraw_token', accessToken, {
+    res.cookie('codraw_token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -95,7 +95,7 @@ export class AuthController {
       );
 
       // Set JWT as HttpOnly cookie
-      res.cookie('astradraw_token', accessToken, {
+      res.cookie('codraw_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -187,7 +187,7 @@ export class AuthController {
       const appUrl = process.env.APP_URL || 'http://localhost';
 
       // Set JWT as HttpOnly cookie
-      res.cookie('astradraw_token', accessToken, {
+      res.cookie('codraw_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -226,7 +226,7 @@ export class AuthController {
    */
   @Get('logout')
   async logout(@Res() res: Response) {
-    res.clearCookie('astradraw_token', {
+    res.clearCookie('codraw_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
