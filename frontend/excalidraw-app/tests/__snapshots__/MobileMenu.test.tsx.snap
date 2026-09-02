@@ -1,0 +1,222 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test MobileMenu > should initialize with welcome screen and hide once user interacts 1`] = `
+<div
+  class="welcome-screen-center"
+>
+  <div
+    class="welcome-screen-center__logo excalifont welcome-screen-decor"
+  >
+    <div
+      class="AstradrawLogo is-large"
+    >
+      <svg
+        class="AstradrawLogo-icon"
+        fill="none"
+        viewBox="0 0 54 49"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19.7029 4C22.7821 -1.33333 30.4801 -1.33333 33.5593 4L52.1794 36.25C55.2583 41.5833 51.409 48.25 45.2507 48.25H8.01147C1.85322 48.2498 -1.99537 41.5833 1.08374 36.25L19.7029 4ZM26.1355 14.6494C26.0664 14.6494 25.9987 14.6717 25.9431 14.7129C25.8876 14.7541 25.847 14.8128 25.8269 14.8789L24.658 18.7998C24.1834 20.3914 23.3197 21.8403 22.1453 23.0146C20.971 24.1888 19.5228 25.0519 17.9314 25.5264L14.0105 26.6963C13.9445 26.7164 13.8865 26.7571 13.8455 26.8125C13.8044 26.868 13.782 26.9358 13.782 27.0049C13.7821 27.0738 13.8044 27.1409 13.8455 27.1963C13.8866 27.2517 13.9445 27.2924 14.0105 27.3125L17.9314 28.4824C19.5229 28.9569 20.9709 29.8209 22.1453 30.9951C23.3196 32.1694 24.1834 33.6175 24.658 35.209L25.8269 39.1309C25.8471 39.1969 25.8886 39.2548 25.9441 39.2959C25.9995 39.3368 26.0666 39.3593 26.1355 39.3594C26.2046 39.3594 26.2724 39.337 26.3279 39.2959C26.3833 39.2548 26.4239 39.1968 26.4441 39.1309L27.614 35.209C28.0885 33.6176 28.9516 32.1694 30.1257 30.9951C31.3 29.8209 32.7482 28.957 34.3396 28.4824L38.2615 27.3135C38.3275 27.2933 38.3854 27.2518 38.4265 27.1963C38.4675 27.1408 38.49 27.0738 38.49 27.0049C38.49 26.9358 38.4676 26.868 38.4265 26.8125C38.3854 26.7571 38.3274 26.7164 38.2615 26.6963L34.3396 25.5273C32.7482 25.0528 31.3 24.1889 30.1257 23.0146C28.9514 21.8403 28.0875 20.3914 27.613 18.7998L26.4441 14.8789C26.424 14.8127 26.3834 14.7541 26.3279 14.7129C26.2723 14.6717 26.2046 14.6494 26.1355 14.6494Z"
+          fill="url(#astradraw-gradient)"
+        />
+        <defs>
+          <lineargradient
+            gradientUnits="userSpaceOnUse"
+            id="astradraw-gradient"
+            x1="11.2661"
+            x2="58.4409"
+            y1="59.5556"
+            y2="1.34553"
+          >
+            <stop
+              offset="0.0398321"
+              stop-color="#674CDC"
+            />
+            <stop
+              offset="1"
+              stop-color="#1E8CE5"
+            />
+          </lineargradient>
+        </defs>
+      </svg>
+      <svg
+        class="AstradrawLogo-text"
+        fill="none"
+        viewBox="0 0 220 40"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <text
+          fill="currentColor"
+          font-family="'Alexandria', sans-serif"
+          font-size="32"
+          letter-spacing="0.05em"
+          text-anchor="middle"
+          x="110"
+          y="30"
+        >
+          <tspan
+            font-weight="700"
+          >
+            Astra
+          </tspan>
+          <tspan
+            font-weight="300"
+          >
+            Draw
+          </tspan>
+        </text>
+      </svg>
+    </div>
+  </div>
+  <div
+    class="welcome-screen-center__heading welcome-screen-decor excalifont"
+  >
+    Space for journeys through galaxies of ideas ✨
+  </div>
+  <div
+    class="welcome-screen-menu"
+  >
+    <button
+      class="welcome-screen-menu-item "
+      type="button"
+    >
+      <div
+        class="welcome-screen-menu-item__icon"
+      >
+        <svg
+          aria-hidden="true"
+          class=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="m9.257 6.351.183.183H15.819c.34 0 .727.182 1.051.506.323.323.505.708.505 1.05v5.819c0 .316-.183.7-.52 1.035-.337.338-.723.522-1.037.522H4.182c-.352 0-.74-.181-1.058-.5-.318-.318-.499-.705-.499-1.057V5.182c0-.351.181-.736.5-1.054.32-.321.71-.503 1.057-.503H6.53l2.726 2.726Z"
+            stroke-width="1.25"
+          />
+        </svg>
+      </div>
+      <div
+        class="welcome-screen-menu-item__text"
+      >
+        Open
+      </div>
+      <div
+        class="welcome-screen-menu-item__shortcut"
+      >
+        Ctrl+O
+      </div>
+    </button>
+    <button
+      class="welcome-screen-menu-item "
+      type="button"
+    >
+      <div
+        class="welcome-screen-menu-item__icon"
+      >
+        <svg
+          aria-hidden="true"
+          class=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <g
+            stroke-width="1.5"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              fill="none"
+              stroke="none"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="9"
+            />
+            <line
+              x1="12"
+              x2="12"
+              y1="17"
+              y2="17.01"
+            />
+            <path
+              d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4"
+            />
+          </g>
+        </svg>
+      </div>
+      <div
+        class="welcome-screen-menu-item__text"
+      >
+        Help
+      </div>
+      <div
+        class="welcome-screen-menu-item__shortcut"
+      >
+        ?
+      </div>
+    </button>
+    <button
+      class="welcome-screen-menu-item "
+      type="button"
+    >
+      <div
+        class="welcome-screen-menu-item__icon"
+      >
+        <svg
+          aria-hidden="true"
+          class=""
+          fill="none"
+          focusable="false"
+          role="img"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <g
+            stroke-width="1.5"
+          >
+            <path
+              d="M0 0h24v24H0z"
+              fill="none"
+              stroke="none"
+            />
+            <circle
+              cx="9"
+              cy="7"
+              r="4"
+            />
+            <path
+              d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"
+            />
+            <path
+              d="M16 3.13a4 4 0 0 1 0 7.75"
+            />
+            <path
+              d="M21 21v-2a4 4 0 0 0 -3 -3.85"
+            />
+          </g>
+        </svg>
+      </div>
+      <div
+        class="welcome-screen-menu-item__text"
+      >
+        Live collaboration...
+      </div>
+    </button>
+  </div>
+</div>
+`;

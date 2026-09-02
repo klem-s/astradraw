@@ -7,9 +7,22 @@
 #   just dev          - Start everything with hot-reload
 #   just dev-stop     - Stop everything
 #   just check        - Run all code checks before commit
-#   just up           - Start with Docker (production images)
-#   just up-local     - Start with Docker (local builds)
+#   just up           - Start with containers (production images)
+#   just up-local     - Start with containers (local builds)
+#
+# Works with Docker or Podman - engine is auto-detected. Force one with
+# `CONTAINER_ENGINE=podman just <recipe>`.
 # =============================================================================
+
+# Container engine (docker or podman) and compose command, auto-detected.
+# Override with `CONTAINER_ENGINE=podman just ...` if both are installed.
+engine := env_var_or_default("CONTAINER_ENGINE", `command -v docker >/dev/null 2>&1 && echo docker || echo podman`)
+compose := env_var_or_default("COMPOSE", `command -v docker >/dev/null 2>&1 && echo "docker compose" || (command -v podman-compose >/dev/null 2>&1 && echo "podman-compose" || echo "podman compose")`)
+
+# docker-compose.infra.yml, plus a Podman-only override (drops an
+# extra_hosts entry Podman Machine can't resolve; Podman already provides
+# host.docker.internal automatically without it).
+infra_files := if engine == "podman" { "-f docker-compose.infra.yml -f docker-compose.infra.podman.yml" } else { "-f docker-compose.infra.yml" }
 
 # Default: show help
 default:
@@ -19,7 +32,7 @@ default:
 # DAILY DEVELOPMENT (most used commands)
 # =============================================================================
 # Use these for day-to-day development with hot-reload.
-# Native services (frontend/backend/room) + Docker infrastructure.
+# Native services (frontend/backend/room) + containerized infrastructure.
 
 # Start everything for development (infrastructure + native services with hot-reload)
 dev:
@@ -51,14 +64,16 @@ dev:
     
     # Start infrastructure
     echo ""
-    echo "🐳 Starting Docker infrastructure..."
+    echo "🐳 Starting infrastructure ({{engine}})..."
     just _up-infra-oidc
-    
-    # Wait for infrastructure
+
+    # Wait for infrastructure (check the actual service ports rather than
+    # `compose ps` health text, which podman-compose doesn't render the same
+    # way docker compose does)
     echo ""
     echo "⏳ Waiting for infrastructure to be ready..."
     for i in {1..30}; do
-        if docker compose -f deploy/docker-compose.infra.yml ps 2>/dev/null | grep -q "healthy"; then
+        if (exec 3<>/dev/tcp/localhost/5432) 2>/dev/null && curl -sf http://localhost:9000/minio/health/live > /dev/null 2>&1; then
             echo "   ✅ Infrastructure is healthy"
             break
         fi
@@ -142,7 +157,7 @@ dev-stop:
     fi
     
     echo ""
-    echo "Stopping Docker infrastructure..."
+    echo "Stopping infrastructure ({{engine}})..."
     just _down-infra
     
     echo ""
@@ -210,9 +225,9 @@ dev-status:
     echo "╚════════════════════════════════════════════════════════════╝"
     echo ""
     
-    echo "🐳 Docker Infrastructure:"
+    echo "🐳 Container Infrastructure ({{engine}}):"
     echo "─────────────────────────"
-    docker ps --filter "name=deploy" --format "table {{ "{{" }}.Names{{ "}}" }}\t{{ "{{" }}.Status{{ "}}" }}" 2>/dev/null | tail -n +2 | sed 's/^/   /' || echo "   No containers running"
+    {{engine}} ps --filter "name=deploy" --format "table {{ "{{" }}.Names{{ "}}" }}\t{{ "{{" }}.Status{{ "}}" }}" 2>/dev/null | tail -n +2 | sed 's/^/   /' || echo "   No containers running"
     
     echo ""
     echo "💻 Native Services:"
@@ -283,104 +298,111 @@ fix:
     cd room-service && yarn fix
 
 # =============================================================================
-# DOCKER DEPLOYMENT
+# CONTAINER DEPLOYMENT (Docker or Podman)
 # =============================================================================
-# Use these when you want to run everything in Docker containers.
-# For daily development, use `just dev` instead (hot-reload, no Docker rebuilds).
+# Use these when you want to run everything in containers.
+# For daily development, use `just dev` instead (hot-reload, no image rebuilds).
+# Engine is auto-detected (docker preferred, podman as fallback); override with
+# `CONTAINER_ENGINE=podman just up`.
 
 # Start with production images (from GHCR)
 up:
-    cd deploy && docker compose up -d
+    cd deploy && {{compose}} up -d
 
 # Start with local builds (builds from ../frontend, ../backend)
 up-local:
-    cd deploy && docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
+    cd deploy && {{compose}} -f docker-compose.yml -f docker-compose.local.yml up -d --build
 
 # Start with OIDC testing (Dex)
 up-oidc:
-    cd deploy && docker compose --profile oidc up -d
+    cd deploy && {{compose}} --profile oidc up -d
 
 # Start with admin tools (pgAdmin, MinIO Console)
 up-admin:
-    cd deploy && docker compose --profile admin up -d
+    cd deploy && {{compose}} --profile admin up -d
 
-# Stop all Docker containers
+# Stop all containers
 down:
-    cd deploy && docker compose --profile oidc --profile admin down
+    cd deploy && {{compose}} --profile oidc --profile admin down
 
 # View logs (all services)
 logs:
-    cd deploy && docker compose logs -f
+    cd deploy && {{compose}} logs -f
 
 # View API logs only
 logs-api:
-    cd deploy && docker compose logs -f api
+    cd deploy && {{compose}} logs -f api
 
 # View frontend logs only
 logs-app:
-    cd deploy && docker compose logs -f app
+    cd deploy && {{compose}} logs -f app
 
 # Restart all services
 restart:
-    cd deploy && docker compose restart
+    cd deploy && {{compose}} restart
 
 # Fresh start with production images (removes all data)
 fresh:
-    cd deploy && docker compose --profile oidc --profile admin down -v
-    docker volume rm astradraw_postgres_data astradraw_minio_data 2>/dev/null || true
-    cd deploy && docker compose up -d
+    cd deploy && {{compose}} --profile oidc --profile admin down -v
+    {{engine}} volume rm astradraw_postgres_data astradraw_minio_data 2>/dev/null || true
+    cd deploy && {{compose}} up -d
 
 # Fresh start with local builds (removes all data)
 fresh-local:
-    cd deploy && docker compose --profile oidc --profile admin down -v
-    docker volume rm astradraw_postgres_data astradraw_minio_data 2>/dev/null || true
-    cd deploy && docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
+    cd deploy && {{compose}} --profile oidc --profile admin down -v
+    {{engine}} volume rm astradraw_postgres_data astradraw_minio_data 2>/dev/null || true
+    cd deploy && {{compose}} -f docker-compose.yml -f docker-compose.local.yml up -d --build
 
 # Build local images without starting
 build:
-    cd deploy && docker compose -f docker-compose.yml -f docker-compose.local.yml build
+    cd deploy && {{compose}} -f docker-compose.yml -f docker-compose.local.yml build
 
 # Build without cache (use when changes aren't being picked up)
 build-no-cache:
-    cd deploy && docker compose -f docker-compose.yml -f docker-compose.local.yml build --no-cache
+    cd deploy && {{compose}} -f docker-compose.yml -f docker-compose.local.yml build --no-cache
 
 # Pull latest production images
 pull:
-    cd deploy && docker compose pull
+    cd deploy && {{compose}} pull
 
-# Clean up Docker resources (old images, build cache, etc.)
+# Clean up container resources (old images, build cache, etc.)
 clean:
     #!/usr/bin/env bash
     set -e
-    echo "🧹 Cleaning up Docker resources..."
+    echo "🧹 Cleaning up {{engine}} resources..."
     echo ""
-    
+
     # Remove dangling images (untagged)
     echo "Removing dangling images..."
-    docker image prune -f
-    
-    # Remove unused build cache
+    {{engine}} image prune -f
+
+    # Remove unused build cache (docker has a dedicated command; podman folds
+    # build cache into `system prune`)
     echo ""
     echo "Removing build cache..."
-    docker builder prune -f
-    
+    if [ "{{engine}}" = "docker" ]; then
+        docker builder prune -f
+    else
+        podman system prune -f
+    fi
+
     echo ""
     echo "✅ Cleanup complete!"
     echo ""
     echo "📊 Current disk usage:"
-    docker system df
+    {{engine}} system df
 
 # Deep clean - removes ALL unused data (images, containers, volumes, networks)
 clean-all:
     #!/usr/bin/env bash
     set -e
-    echo "🧹 Deep cleaning Docker resources..."
+    echo "🧹 Deep cleaning {{engine}} resources..."
     echo "⚠️  This will remove ALL unused images, containers, volumes, and networks!"
     echo ""
     read -p "Are you sure? (y/N) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker system prune -a --volumes -f
+        {{engine}} system prune -a --volumes -f
         echo ""
         echo "✅ Deep cleanup complete!"
     else
@@ -426,14 +448,14 @@ dev-fresh:
     
     # Start infrastructure (needed for database)
     echo ""
-    echo "🐳 Starting infrastructure..."
+    echo "🐳 Starting infrastructure ({{engine}})..."
     just _up-infra-oidc
-    
+
     # Wait for database
     echo ""
     echo "⏳ Waiting for database..."
     for i in {1..30}; do
-        if docker exec deploy-postgres-1 pg_isready -U excalidraw > /dev/null 2>&1; then
+        if (cd deploy && {{compose}} {{infra_files}} exec -T postgres pg_isready -U excalidraw) > /dev/null 2>&1; then
             echo "   ✅ Database is ready"
             break
         fi
@@ -464,19 +486,9 @@ dev-fresh:
 # GIT
 # =============================================================================
 
-# Show git status for all repos
+# Show git status
 status:
-    @echo "=== Main Repo ===" && git status -s
-    @echo "\n=== Frontend ===" && cd frontend && git status -s
-    @echo "\n=== Backend ===" && cd backend && git status -s
-    @echo "\n=== Room Service ===" && cd room-service && git status -s
-
-# Pull latest from all repos
-pull-all:
-    git pull origin main
-    cd frontend && git pull origin main
-    cd backend && git pull origin main
-    cd room-service && git pull origin main
+    git status -s
 
 # =============================================================================
 # SETUP (one-time)
@@ -505,39 +517,35 @@ setup:
     fi
     echo ""
     
-    # Step 2: Clone repos
-    echo "📋 Step 2: Cloning repositories..."
-    test -d frontend || (echo "   Cloning frontend..." && git clone https://github.com/AstraDraw/astradraw-app.git frontend)
-    test -d backend || (echo "   Cloning backend..." && git clone https://github.com/AstraDraw/astradraw-api.git backend)
-    test -d room-service || (echo "   Cloning room service..." && git clone https://github.com/AstraDraw/astradraw-room.git room-service)
-    echo "   ✅ Repositories ready"
-    echo ""
-    
-    # Step 3: Environment file
-    echo "📋 Step 3: Setting up environment..."
+    # Step 2: Environment file
+    echo "📋 Step 2: Setting up environment..."
     test -f deploy/.env || cp deploy/env.example deploy/.env
     echo "   ✅ deploy/.env ready"
     echo ""
-    
-    # Step 4: Secrets
-    echo "📋 Step 4: Generating secrets..."
+
+    # Step 3: Secrets
+    echo "📋 Step 3: Generating secrets..."
     mkdir -p deploy/secrets
     test -f deploy/secrets/minio_access_key || echo "minioadmin" > deploy/secrets/minio_access_key
     test -f deploy/secrets/minio_secret_key || openssl rand -base64 32 > deploy/secrets/minio_secret_key
+    test -f deploy/secrets/postgres_user || echo -n "excalidraw" > deploy/secrets/postgres_user
+    test -f deploy/secrets/postgres_password || openssl rand -base64 32 > deploy/secrets/postgres_password
+    test -f deploy/secrets/postgres_db || echo -n "excalidraw" > deploy/secrets/postgres_db
+    test -f deploy/secrets/jwt_secret || openssl rand -base64 32 > deploy/secrets/jwt_secret
     echo "   ✅ Secrets ready"
     echo ""
-    
-    # Step 5: SSL Certificate
-    echo "📋 Step 5: Generating SSL certificate..."
+
+    # Step 4: SSL Certificate
+    echo "📋 Step 4: Generating SSL certificate..."
     if [ ! -f deploy/certs/server.crt ]; then
         just setup-certs
     else
         echo "   ✅ Certificate already exists"
     fi
     echo ""
-    
-    # Step 6: Install dependencies
-    echo "📋 Step 6: Installing dependencies..."
+
+    # Step 5: Install dependencies
+    echo "📋 Step 5: Installing dependencies..."
     just install
     echo ""
     
@@ -593,53 +601,6 @@ test-setup-collab url="https://draw.local":
     deploy/tests/setup-collab-test.sh {{url}}
 
 # =============================================================================
-# GIT PUSH COMMANDS
-# =============================================================================
-
-# Push all repositories (main, frontend, backend, room-service)
-push-all:
-    #!/usr/bin/env bash
-    echo "🚀 Pushing all repositories..."
-    echo ""
-    echo "=== Main Repo ===" && git push && echo ""
-    echo "=== Frontend ===" && cd frontend && git push && cd .. && echo ""
-    echo "=== Backend ===" && cd backend && git push && cd .. && echo ""
-    echo "=== Room Service ===" && cd room-service && git push && cd .. && echo ""
-    echo "✅ All repositories pushed!"
-
-# Push main repository only
-push-main:
-    git push
-
-# Push frontend repository only
-push-frontend:
-    cd frontend && git push
-
-# Push backend repository only
-push-backend:
-    cd backend && git push
-
-# Push room-service repository only
-push-room:
-    cd room-service && git push
-
-# =============================================================================
-# RELEASE (use with caution)
-# =============================================================================
-
-# Tag and push frontend release
-release-frontend version:
-    cd frontend && git tag v{{version}} && git push origin main --tags
-
-# Tag and push backend release
-release-backend version:
-    cd backend && git tag v{{version}} && git push origin main --tags
-
-# Tag and push room service release
-release-room version:
-    cd room-service && git tag v{{version}} && git push origin main --tags
-
-# =============================================================================
 # INTERNAL HELPERS (prefixed with _ to hide from list)
 # =============================================================================
 
@@ -657,15 +618,15 @@ _dev-room:
 
 # Start infrastructure only
 _up-infra:
-    cd deploy && docker compose -f docker-compose.infra.yml up -d
+    cd deploy && {{compose}} {{infra_files}} up -d
 
 # Start infrastructure with OIDC
 _up-infra-oidc:
-    cd deploy && docker compose -f docker-compose.infra.yml --profile oidc up -d
+    cd deploy && {{compose}} {{infra_files}} --profile oidc up -d
 
 # Stop infrastructure
 _down-infra:
-    cd deploy && docker compose -f docker-compose.infra.yml --profile oidc --profile admin down
+    cd deploy && {{compose}} {{infra_files}} --profile oidc --profile admin down
 
 # Generate frontend env-config.js
 _generate-frontend-env:
@@ -673,4 +634,4 @@ _generate-frontend-env:
 
 # Configure MinIO thumbnails for public access
 _configure-minio-thumbnails:
-    ./deploy/configure-minio-thumbnails.sh
+    COMPOSE="{{compose}}" COMPOSE_FILES="{{infra_files}}" ./deploy/configure-minio-thumbnails.sh

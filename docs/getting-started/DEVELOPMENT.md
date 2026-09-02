@@ -161,18 +161,17 @@ just setup
 
 This will:
 1. Check if `draw.local` is in your hosts file
-2. Clone the frontend, backend, and room-service repos
-3. Create the `.env` file from template
-4. Generate secrets for MinIO
-5. Generate SSL certificate for `draw.local`
-6. Install all dependencies
+2. Create the `.env` file from template
+3. Generate secrets for Postgres, MinIO, and JWT
+4. Generate SSL certificate for `draw.local`
+5. Install all dependencies
 
 ## Prerequisites
 
 ### Required Software
 
 - Node.js 18+ (recommended: use nvm)
-- Docker Desktop
+- Docker Desktop or Podman
 - Just command runner (`brew install just`)
 
 ### Host Configuration (Required!)

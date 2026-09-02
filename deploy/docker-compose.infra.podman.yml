@@ -1,0 +1,15 @@
+# Podman override for docker-compose.infra.yml
+#
+# Applied automatically by the Justfile when CONTAINER_ENGINE=podman (or
+# when podman is auto-detected). Not needed with Docker.
+#
+# Podman already resolves host.docker.internal (and host.containers.internal)
+# to the host gateway IP for every container automatically - no extra_hosts
+# entry needed. Docker Compose's "host-gateway" placeholder, which Docker
+# itself resolves, currently fails under Podman Machine (rootful or
+# rootless) with "host containers internal IP address is empty", so it's
+# dropped here rather than relied upon.
+
+services:
+  traefik:
+    extra_hosts: !reset []

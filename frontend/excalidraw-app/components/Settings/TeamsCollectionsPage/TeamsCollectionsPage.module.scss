@@ -1,0 +1,1124 @@
+// =============================================================================
+// TeamsCollectionsPage - CSS Module
+// =============================================================================
+@use "../../../styles/mixins" as *;
+
+.page {
+  // Define --ui-font locally since component is outside .excalidraw container
+  --ui-font: Assistant, system-ui, BlinkMacSystemFont, -apple-system, Segoe UI,
+    Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--ui-font);
+
+  flex: 1;
+  padding: 32px 48px;
+  overflow-y: auto;
+  background: var(--default-bg-color, #fafafa);
+}
+
+// Header with title and button
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.headerButton {
+  padding: 10px 20px;
+  background: var(--color-primary, #6965db);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--color-primary-darker, #5b57c5);
+  }
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 25px;
+  font-weight: 500;
+  color: var(--text-primary-color, #1b1b1f);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary-color, #6b6b6b);
+}
+
+.separator {
+  height: 1px;
+  background: var(--default-border-color, #e5e5e5);
+  margin: 24px 0 32px;
+}
+
+// Messages
+.success {
+  padding: 12px 16px;
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid var(--color-success, #059669);
+  border-radius: 8px;
+  color: var(--color-success, #059669);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.errorInline {
+  padding: 12px 16px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid var(--color-danger, #dc2626);
+  border-radius: 8px;
+  color: var(--color-danger, #dc2626);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+// Empty states
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-secondary-color, #6b6b6b);
+}
+
+.emptySection {
+  text-align: center;
+  padding: 32px 24px;
+  color: var(--text-secondary-color, #6b6b6b);
+  background: var(--island-bg-color, #ffffff);
+  border: 1px solid var(--default-border-color, #e5e5e5);
+  border-radius: 10px;
+}
+
+.emptyHint {
+  color: var(--text-secondary-color, #6b6b6b);
+  font-size: 13px;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.emptyList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  border: 2px dashed var(--default-border-color, #e5e5e5);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--text-secondary-color, #6b6b6b);
+  font-size: 14px;
+  gap: 16px;
+  min-height: 260px;
+
+  p {
+    margin: 0;
+  }
+}
+
+// Loading
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--default-border-color, #e5e5e5);
+  border-top-color: var(--color-primary, #6965db);
+  border-radius: 50%;
+  animation: tcSpin 1s linear infinite;
+}
+
+@keyframes tcSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Sections - two-column layout matching WorkspaceSettingsPage
+.section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--default-border-color, #e5e5e5);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.sectionHeader {
+  flex: 0 0 200px; // Fixed width for label column (matches sectionTitle width in WorkspaceSettingsPage)
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary-color, #1b1b1f);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.sectionContent {
+  flex: 1; // Right column - takes remaining space
+  min-width: 0; // Allow content to shrink
+}
+
+// Table layout
+.table {
+  background: var(--island-bg-color, #ffffff);
+  border: 1px solid var(--default-border-color, #e5e5e5);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  padding: 12px 16px;
+  background: rgba(105, 101, 219, 0.08);
+  border-bottom: 1px solid var(--default-border-color, #e5e5e5);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary-color, #6b6b6b);
+}
+
+.tableRow {
+  display: flex;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--default-border-color, #e5e5e5);
+  align-items: center;
+  transition: background 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  &:hover .actionButton {
+    opacity: 1;
+  }
+}
+
+.tableRowClickable {
+  composes: tableRow;
+  cursor: pointer;
+}
+
+.tableCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tableCellTeam {
+  composes: tableCell;
+  flex: 1;
+  min-width: 0;
+}
+
+.tableCellCollection {
+  composes: tableCell;
+  flex: 1;
+  min-width: 0;
+}
+
+.tableCellMembers {
+  composes: tableCell;
+  width: 120px;
+  color: var(--text-secondary-color, #6b6b6b);
+  font-size: 14px;
+}
+
+.tableCellAccess {
+  composes: tableCell;
+  flex: 1;
+  min-width: 200px;
+}
+
+.tableCellActions {
+  composes: tableCell;
+  width: 80px;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+// Team styling
+.teamColor {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.teamColorSmall {
+  composes: teamColor;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.teamName {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary-color, #1b1b1f);
+}
+
+// Collection styling
+.collectionIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.collectionName {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary-color, #1b1b1f);
+}
+
+// Team chips for access column
+.teamChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.teamChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+// Access badges
+.accessBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.accessBadgeAdminsOnly {
+  composes: accessBadge;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-warning, #d97706);
+}
+
+.accessBadgePrivate {
+  composes: accessBadge;
+  background: rgba(107, 107, 107, 0.15);
+  color: var(--text-secondary-color, #6b6b6b);
+}
+
+.accessBadgeEveryone {
+  composes: accessBadge;
+  background: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+}
+
+// Access level badge inside team chips
+.chipAccessBadge {
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+.chipAccessBadgeView {
+  composes: chipAccessBadge;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.chipAccessBadgeEdit {
+  composes: chipAccessBadge;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+// Access level select dropdown
+.accessSelect {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--ui-font);
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(105, 101, 219, 0.3);
+  }
+}
+
+.accessSelectNone {
+  composes: accessSelect;
+  color: var(--text-secondary-color, #6b7280);
+  background: rgba(107, 114, 128, 0.1);
+}
+
+.accessSelectView {
+  composes: accessSelect;
+  color: var(--color-warning, #d97706);
+  background: rgba(217, 119, 6, 0.1);
+}
+
+.accessSelectEdit {
+  composes: accessSelect;
+  color: var(--color-primary, #6965db);
+  background: rgba(105, 101, 219, 0.1);
+}
+
+// Inline edit input
+.inlineInput {
+  padding: 4px 8px;
+  background: var(--island-bg-color, #ffffff);
+  border: 1px solid var(--color-primary, #6965db);
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary-color, #1b1b1f);
+  outline: none;
+  width: 200px;
+}
+
+// Action buttons
+.actionButton {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary-color, #6b6b6b);
+  transition: all 0.15s ease;
+  opacity: 0;
+
+  &:hover {
+    background: var(--default-border-color, #e5e5e5);
+    color: var(--text-primary-color, #1b1b1f);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.actionButtonDanger {
+  composes: actionButton;
+
+  &:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--color-danger, #dc2626);
+  }
+}
+
+// Add button
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 2px dashed var(--default-border-color, #e5e5e5);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary-color, #6b6b6b);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-primary, #6965db);
+    color: var(--color-primary, #6965db);
+    background: rgba(105, 101, 219, 0.05);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.addButtonInline {
+  composes: addButton;
+  border-style: solid;
+  border-width: 1px;
+  padding: 8px 14px;
+}
+
+// Dialog
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.dialog {
+  background: var(--island-bg-color, #ffffff);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.dialogWide {
+  composes: dialog;
+  max-width: 844px;
+}
+
+.dialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--default-border-color, #e5e5e5);
+  flex-shrink: 0;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary-color, #1b1b1f);
+    margin: 0;
+  }
+}
+
+.dialogClose {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary-color, #6b6b6b);
+
+  &:hover {
+    background: var(--default-border-color, #e5e5e5);
+    color: var(--text-primary-color, #1b1b1f);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.dialogContent {
+  padding: 40px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dialogContentTwoColumn {
+  composes: dialogContent;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+.dialogColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dialogFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--default-border-color, #e5e5e5);
+  flex-shrink: 0;
+}
+
+// Form elements
+.formGroup {
+  > label {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary-color, #1b1b1f);
+    margin-bottom: 16px;
+  }
+}
+
+.formGroupIcon {
+  composes: formGroup;
+  flex-shrink: 0;
+}
+
+.formGroupName {
+  composes: formGroup;
+  flex: 1;
+
+  .input {
+    height: 56px;
+  }
+}
+
+.formGroupGrow {
+  composes: formGroup;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  .memberList {
+    flex: 1;
+    min-height: 260px;
+    max-height: 260px;
+  }
+}
+
+.formHint {
+  font-size: 14px;
+  color: var(--text-secondary-color, #6b6b6b);
+  margin: 0 0 16px;
+}
+
+.infoBox {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.08);
+  color: rgb(30, 64, 175);
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.input {
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 16px;
+  background: var(--island-bg-color, #ffffff);
+  border: 1px solid var(--default-border-color, #e5e5e5);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--text-primary-color, #1b1b1f);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--color-primary, #6965db);
+  }
+
+  &::placeholder {
+    color: var(--text-secondary-color, #6b6b6b);
+  }
+}
+
+// Color picker
+.colorPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.colorOption {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    border-color: rgba(107, 107, 107, 0.3);
+  }
+}
+
+.colorOptionSelected {
+  composes: colorOption;
+  border-color: rgb(59, 130, 246);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  transform: scale(1.05);
+}
+
+// Member list (full-width rows)
+.memberList {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 0;
+  overflow-y: auto;
+  min-height: 260px;
+  max-height: 260px;
+}
+
+.memberRow {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-radius: 8px;
+  margin: 2px 0;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+}
+
+.memberRowDisabled {
+  composes: memberRow;
+  opacity: 0.7;
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
+.rowCheckbox {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary, #6965db);
+  flex-shrink: 0;
+  border-radius: 4px;
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.roleBadge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(105, 101, 219, 0.12);
+  color: var(--color-primary, #6965db);
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+// Legacy checkbox list (keeping for backwards compatibility)
+.checkboxList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--default-border-color, #e5e5e5);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--color-primary, #6965db);
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+}
+
+.checkboxItemDisabled {
+  composes: checkboxItem;
+  opacity: 0.7;
+  cursor: default;
+}
+
+.checkboxIcon {
+  font-size: 18px;
+}
+
+.checkboxLabel {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  span {
+    font-weight: 400 !important;
+  }
+}
+
+// Member avatar
+.memberAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.memberAvatarPlaceholder {
+  composes: memberAvatar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary, #6965db);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.memberName {
+  font-size: 14px;
+  color: var(--text-primary-color, #1b1b1f);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberRole {
+  font-size: 13px;
+  color: var(--text-secondary-color, #6b6b6b);
+}
+
+// Buttons
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid var(--default-border-color, #e5e5e5);
+  background: var(--island-bg-color, #ffffff);
+  color: var(--text-primary-color, #1b1b1f);
+
+  &:hover {
+    background: var(--default-border-color, #e5e5e5);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.buttonPrimary {
+  composes: button;
+  background: var(--color-primary, #6965db);
+  border-color: var(--color-primary, #6965db);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-darker, #5b57c5);
+    border-color: var(--color-primary-darker, #5b57c5);
+  }
+}
+
+.buttonFull {
+  composes: button;
+  width: 100%;
+}
+
+.buttonPrimaryFull {
+  composes: buttonPrimary;
+  width: 100%;
+}
+
+// Dark mode
+@include dark-mode {
+  .page {
+    background: var(--default-bg-color, #1e1e24);
+  }
+
+  .title {
+    color: var(--text-primary-color, #e1e1e1);
+  }
+
+  .separator {
+    background: var(--default-border-color, #3d3d3d);
+  }
+
+  .subtitle {
+    color: var(--text-secondary-color, #9b9b9b);
+  }
+
+  .spinner {
+    border-color: var(--default-border-color, #3d3d3d);
+    border-top-color: var(--color-primary, #a5a1ff);
+  }
+
+  .table {
+    background: var(--island-bg-color, #232329);
+    border-color: var(--default-border-color, #3d3d3d);
+  }
+
+  .tableHeader {
+    background: rgba(105, 101, 219, 0.15);
+    border-color: var(--default-border-color, #3d3d3d);
+  }
+
+  .tableRow {
+    border-color: var(--default-border-color, #3d3d3d);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  .teamName {
+    color: var(--text-primary-color, #e1e1e1);
+  }
+
+  .collectionName {
+    color: var(--text-primary-color, #e1e1e1);
+  }
+
+  .emptySection {
+    background: var(--island-bg-color, #232329);
+    border-color: var(--default-border-color, #3d3d3d);
+  }
+
+  .emptyList {
+    border-color: var(--default-border-color, #3d3d3d);
+    color: var(--text-secondary-color, #9b9b9b);
+  }
+
+  .dialog {
+    background: var(--island-bg-color, #232329);
+  }
+
+  .dialogHeader {
+    border-color: var(--default-border-color, #3d3d3d);
+
+    h2 {
+      color: var(--text-primary-color, #e1e1e1);
+    }
+  }
+
+  .dialogClose {
+    color: var(--text-secondary-color, #9b9b9b);
+
+    &:hover {
+      background: var(--default-border-color, #3d3d3d);
+      color: var(--text-primary-color, #e1e1e1);
+    }
+  }
+
+  .dialogFooter {
+    border-color: var(--default-border-color, #3d3d3d);
+  }
+
+  .formGroup > label {
+    color: var(--text-primary-color, #e1e1e1);
+  }
+
+  .formHint {
+    color: var(--text-secondary-color, #9b9b9b);
+  }
+
+  .infoBox {
+    border-color: rgba(96, 165, 250, 0.3);
+    background: rgba(30, 58, 138, 0.2);
+    color: rgb(147, 197, 253);
+  }
+
+  .input {
+    background: var(--default-bg-color, #1e1e24);
+    border-color: var(--default-border-color, #3d3d3d);
+    color: var(--text-primary-color, #e1e1e1);
+
+    &::placeholder {
+      color: var(--text-secondary-color, #9b9b9b);
+    }
+  }
+
+  .inlineInput {
+    background: var(--default-bg-color, #1e1e24);
+    color: var(--text-primary-color, #e1e1e1);
+  }
+
+  .colorOptionSelected {
+    border-color: rgb(96, 165, 250);
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+  }
+
+  .checkboxList {
+    border-color: var(--default-border-color, #3d3d3d);
+  }
+
+  .checkboxItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .memberRow {
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .memberName {
+    color: var(--text-primary-color, #e1e1e1);
+  }
+
+  .memberRole {
+    color: var(--text-secondary-color, #9b9b9b);
+  }
+
+  .roleBadge {
+    background: rgba(165, 161, 255, 0.2);
+    color: #a5a1ff;
+  }
+
+  .accessBadgeAdminsOnly {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+  }
+
+  .accessBadgePrivate {
+    background: rgba(155, 155, 155, 0.2);
+  }
+
+  .actionButton {
+    color: var(--text-secondary-color, #9b9b9b);
+
+    &:hover {
+      background: var(--default-border-color, #3d3d3d);
+      color: var(--text-primary-color, #e1e1e1);
+    }
+  }
+
+  .addButton {
+    border-color: var(--default-border-color, #3d3d3d);
+    color: var(--text-secondary-color, #9b9b9b);
+
+    &:hover {
+      border-color: var(--color-primary-light, #a5a1ff);
+      color: var(--color-primary-light, #a5a1ff);
+    }
+  }
+
+  .button {
+    background: var(--default-bg-color, #1e1e24);
+    border-color: var(--default-border-color, #3d3d3d);
+    color: var(--text-primary-color, #e1e1e1);
+
+    &:hover {
+      background: var(--default-border-color, #3d3d3d);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .page {
+    padding: 24px 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dialogContentTwoColumn {
+    grid-template-columns: 1fr;
+  }
+
+  .tableCellAccess {
+    min-width: 120px;
+  }
+
+  .actionButton {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .tableHeader,
+  .tableRow {
+    flex-wrap: wrap;
+  }
+
+  .tableCellMembers,
+  .tableCellAccess {
+    width: 100%;
+    margin-top: 8px;
+    padding-left: 36px;
+  }
+}

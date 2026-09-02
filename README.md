@@ -92,22 +92,15 @@ AstraDraw extends the open-source Excalidraw whiteboard with enterprise-ready fe
 
 ## Repository Structure
 
-AstraDraw consists of multiple repositories:
-
-| Repository | Description |
-|------------|-------------|
-| [astradraw](https://github.com/AstraDraw/astradraw) | Main orchestration (this repo) - deployment, docs |
-| [astradraw-app](https://github.com/AstraDraw/astradraw-app) | React frontend (Excalidraw fork) |
-| [astradraw-api](https://github.com/AstraDraw/astradraw-api) | NestJS backend API |
-| [astradraw-room](https://github.com/AstraDraw/astradraw-room) | WebSocket collaboration server |
+AstraDraw is a monorepo - frontend, backend, and room service all live in this one repository:
 
 ```
 astradraw/
-├── frontend/           # React app (clone astradraw-app here)
-├── backend/            # NestJS API (clone astradraw-api here)
-├── room-service/       # WebSocket server (clone astradraw-room here)
+├── frontend/           # React app (Excalidraw fork)
+├── backend/            # NestJS API
+├── room-service/       # WebSocket server
 ├── docs/               # Documentation
-├── deploy/             # Docker Compose, configs
+├── deploy/             # Docker/Podman Compose, configs
 └── Justfile            # Development commands
 ```
 
@@ -116,12 +109,9 @@ astradraw/
 ### Development
 
 ```bash
-# 1. Clone all repositories
+# 1. Clone the repository
 git clone https://github.com/AstraDraw/astradraw.git
 cd astradraw
-git clone https://github.com/AstraDraw/astradraw-app.git frontend
-git clone https://github.com/AstraDraw/astradraw-api.git backend
-git clone https://github.com/AstraDraw/astradraw-room.git room-service
 
 # 2. Setup (first time only)
 just setup

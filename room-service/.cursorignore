@@ -1,0 +1,14 @@
+# =============================================================================
+# Room-Service Cursorignore - Hierarchical ignore for room-service repo
+# =============================================================================
+# Excludes build artifacts and test files from AI indexing.
+
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+
+# Test images (PNG files for testing)
+public/
+

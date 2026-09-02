@@ -1,0 +1,235 @@
+@import "../packages/excalidraw/css/variables.module.scss";
+
+.excalidraw {
+  --color-primary-contrast-offset: #625ee0; // to offset Chubb illusion
+
+  &.theme--dark {
+    --color-primary-contrast-offset: #726dff; // to offset Chubb illusion
+  }
+
+  .footer-center {
+    justify-content: flex-end;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-inline-start: auto;
+  }
+
+  .encrypted-icon {
+    border-radius: var(--space-factor);
+    color: var(--color-primary);
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-inline-start: auto;
+    margin-inline-end: 0.6em;
+    z-index: var(--zIndex-layerUI);
+
+    svg {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+  }
+
+  .dropdown-menu-container {
+    .dropdown-menu-item {
+      &.active-collab {
+        background-color: #ecfdf5;
+        color: #064e3c;
+      }
+      &.highlighted {
+        color: var(--color-promo);
+        font-weight: 700;
+        .dropdown-menu-item__icon g {
+          stroke-width: 2;
+        }
+      }
+    }
+  }
+
+  &.theme--dark {
+    .dropdown-menu-item {
+      &.active-collab {
+        background-color: #064e3c;
+        color: #ecfdf5;
+      }
+    }
+  }
+
+  .alert {
+    pointer-events: none;
+    position: absolute;
+    top: 6.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    text-align: center;
+    line-height: 1.5;
+    border-radius: var(--border-radius-md);
+    z-index: 6;
+    white-space: pre;
+
+    &--warning {
+      background-color: var(--color-warning);
+      color: var(--color-text-warning);
+    }
+
+    &--danger {
+      background-color: var(--color-danger-dark);
+      color: var(--color-danger-text);
+    }
+  }
+}
+
+.excalidraw-app.is-collaborating {
+  [data-testid="clear-canvas-button"] {
+    display: none;
+  }
+}
+
+.plus-banner {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  align-items: center;
+  border: 1px solid var(--color-primary);
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--border-radius-lg);
+  background-color: var(--island-bg-color);
+  text-decoration: none !important;
+
+  font-family: var(--ui-font);
+  font-size: 0.8333rem;
+  box-sizing: border-box;
+  height: var(--lg-button-size);
+
+  border: none;
+  box-shadow: 0 0 0 1px var(--color-surface-lowest);
+  background-color: var(--color-surface-low);
+  color: var(--button-color, var(--color-on-surface)) !important;
+
+  &--disabled {
+    cursor: default;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  &:active {
+    box-shadow: 0 0 0 1px var(--color-brand-active);
+  }
+
+  &:hover {
+    background-color: var(--color-primary);
+    color: white !important;
+  }
+
+  &:active {
+    background-color: var(--color-primary-darker);
+  }
+}
+
+.theme--dark {
+  .plus-banner {
+    &:hover {
+      color: black !important;
+    }
+  }
+}
+
+// Presentation mode - hide UI elements that shouldn't be visible during presentation
+body.excalidraw-presentation-mode {
+  // Hide the hamburger menu button (top-left)
+  .main-menu-trigger {
+    display: none !important;
+  }
+
+  // Hide zoom controls (bottom-left)
+  .layer-ui__wrapper__footer-left {
+    display: none !important;
+  }
+
+  // Hide the "Exit Zen Mode" button
+  .disable-zen-mode {
+    display: none !important;
+  }
+
+  // Hide the help button (bottom-right)
+  .layer-ui__wrapper__footer-right {
+    display: none !important;
+  }
+
+  // Remove any borders/outlines from main containers to prevent lines showing
+  .excalidraw,
+  .excalidraw-app,
+  .excalidraw-app__main {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  // Hide workspace sidebar completely (CSS Modules generates _sidebar_* class names)
+  [class^="_sidebar_"],
+  [class*=" _sidebar_"] {
+    display: none !important;
+  }
+}
+
+// Workspace sidebar layout - pushes content like Excalidraw Plus
+.excalidraw-app {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+
+  // Prevent browser pinch-to-zoom on UI elements (sidebar, dashboard, toolbars)
+  // The canvas has its own touch-action: none in packages/excalidraw/css/styles.scss
+  // Using 'pan-x pan-y' allows scrolling but prevents pinch-zoom
+  touch-action: pan-x pan-y;
+
+  &__main {
+    flex: 1;
+    height: 100%;
+    min-width: 0; // Allow flex item to shrink below content size
+    position: relative;
+    transition: margin-left 0.2s ease-out;
+  }
+
+  // Dashboard container visibility - driven by aria-hidden attribute
+  // This respects the CSS Hide/Show pattern in CRITICAL_CSS_HIDE_SHOW_FIX.md
+
+  // Dashboard hidden (canvas mode)
+  &__dashboard[aria-hidden="true"] {
+    display: none !important;
+  }
+
+  // Dashboard visible (dashboard mode) - flex layout for scrolling
+  &__dashboard[aria-hidden="false"] {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  // Canvas container - needs position relative for potential overlays
+  &__canvas {
+    position: relative;
+  }
+
+  // Block pointer events when canvas is hidden (CSS fallback for older browsers)
+  &__canvas[aria-hidden="true"] {
+    pointer-events: none;
+  }
+
+  // When sidebar is open, main content area shrinks
+  &.workspace-sidebar-open {
+    .excalidraw-app__main {
+      // The sidebar is 300px wide, content area fills the rest
+    }
+  }
+}
+
+// Keyboard blocking class (applied to body when in dashboard mode)
+// This provides an additional safety layer for keyboard event handling
+body.excalidraw-disabled {
+  // The inert attribute handles most cases, but this class can be used
+  // for additional CSS-based blocking if needed
+}

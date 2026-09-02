@@ -96,6 +96,24 @@ http:
       service: minio
       priority: 110
 
+    # Dex OIDC provider (only reachable when the "oidc" compose profile is up)
+    dex:
+      rule: "PathPrefix(`/dex`)"
+      entryPoints:
+        - websecure
+      service: dex
+      tls: {}
+      priority: 120
+
+    dex-http:
+      rule: "PathPrefix(`/dex`)"
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+      service: dex
+      priority: 120
+
   # Services - define where requests are forwarded
   services:
     # Frontend - Vite dev server on host (port 3000)
@@ -121,6 +139,12 @@ http:
       loadBalancer:
         servers:
           - url: "http://minio:9000"
+
+    # Dex - stays in Docker network
+    dex:
+      loadBalancer:
+        servers:
+          - url: "http://dex:5556"
 
   # Middlewares
   middlewares:

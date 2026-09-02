@@ -25,8 +25,9 @@ services:
       # Uncomment for debugging:
       # - "--api.insecure=true"
       # - "--log.level=DEBUG"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+      # Routing is entirely static (traefik-dynamic-native.yml) - no
+      # container-socket provider, so this works identically under Docker
+      # and Podman with no socket-forwarding setup required.
       - "--providers.file.directory=/etc/traefik/dynamic"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
@@ -36,7 +37,6 @@ services:
       # Uncomment for Traefik dashboard:
       # - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./certs:/etc/traefik/certs:ro
       # Use dev config that routes to host machine
       - ./traefik-dynamic-native.yml:/etc/traefik/dynamic/config.yml:ro
@@ -106,12 +106,9 @@ services:
     networks:
       - astradraw
       - internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pgadmin-secure.rule=Host(`db.${APP_DOMAIN:-draw.local}`)"
-      - "traefik.http.routers.pgadmin-secure.entrypoints=websecure"
-      - "traefik.http.routers.pgadmin-secure.tls=true"
-      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+    ports:
+      # Routed directly (not via Traefik) - open http://localhost:5050
+      - "5050:80"
     depends_on:
       - postgres
     profiles:
@@ -126,18 +123,7 @@ services:
       - ./dex-config.yaml:/etc/dex/config.yaml:ro
     networks:
       - astradraw
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dex-secure.rule=Host(`${APP_DOMAIN:-draw.local}`) && PathPrefix(`/dex`)"
-      - "traefik.http.routers.dex-secure.entrypoints=websecure"
-      - "traefik.http.routers.dex-secure.tls=true"
-      - "traefik.http.routers.dex-secure.priority=110"
-      - "traefik.http.services.dex.loadbalancer.server.port=5556"
-      - "traefik.http.routers.dex.rule=Host(`${APP_DOMAIN:-draw.local}`) && PathPrefix(`/dex`)"
-      - "traefik.http.routers.dex.entrypoints=web"
-      # Use middleware from file config (@file suffix)
-      - "traefik.http.routers.dex.middlewares=redirect-to-https@file"
-      - "traefik.http.routers.dex.priority=110"
+    # Routed via Traefik's static file provider - see traefik-dynamic-native.yml
     profiles:
       - oidc  # Only start with: docker compose --profile oidc up
 

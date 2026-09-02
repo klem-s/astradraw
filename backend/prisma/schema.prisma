@@ -1,0 +1,398 @@
+// Prisma Schema for AstraDraw Workspace
+// This schema manages user authentication, workspaces, teams, and scene metadata
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// Enums
+// =============================================================================
+
+enum WorkspaceRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum WorkspaceType {
+  PERSONAL
+  SHARED
+}
+
+enum CollectionAccessLevel {
+  VIEW
+  EDIT
+}
+
+enum NotificationType {
+  COMMENT   // New comment on thread user participated in
+  MENTION   // User was @mentioned in a comment
+}
+
+// =============================================================================
+// User Model
+// =============================================================================
+
+// User model - stores authenticated users (OIDC or local password auth)
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  avatarUrl    String?
+  
+  // Authentication - either OIDC or local password
+  oidcId       String?  @unique  // OIDC subject ID (optional for local users)
+  passwordHash String?           // bcrypt hash for local auth (optional for OIDC users)
+  isSuperAdmin Boolean  @default(false)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  scenes              Scene[]
+  talktrackRecordings TalktrackRecording[]
+  workspaceMemberships WorkspaceMember[]
+  
+  // Comment relations
+  createdThreads    CommentThread[] @relation("CreatedThreads")
+  resolvedThreads   CommentThread[] @relation("ResolvedThreads")
+  createdComments   Comment[]       @relation("CreatedComments")
+  
+  // Notification relations
+  notifications      Notification[] @relation("UserNotifications")
+  actorNotifications Notification[] @relation("ActorNotifications")
+
+  @@map("users")
+}
+
+// =============================================================================
+// Workspace Models
+// =============================================================================
+
+// Workspace model - a shared space for teams to collaborate
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  avatarUrl   String?
+  type        WorkspaceType @default(PERSONAL)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members     WorkspaceMember[]
+  collections Collection[]
+  teams       Team[]
+  inviteLinks InviteLink[]
+
+  @@map("workspaces")
+}
+
+// WorkspaceMember model - links users to workspaces with roles
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  role        WorkspaceRole @default(MEMBER)
+  
+  // Relations
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Team memberships within this workspace
+  teamMemberships TeamMember[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
+  @@map("workspace_members")
+}
+
+// InviteLink model - shareable links to join a workspace
+model InviteLink {
+  id          String        @id @default(cuid())
+  code        String        @unique
+  role        WorkspaceRole @default(MEMBER)
+  
+  // Relations
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Constraints
+  expiresAt   DateTime?
+  maxUses     Int?
+  uses        Int           @default(0)
+  
+  createdAt   DateTime      @default(now())
+
+  @@index([workspaceId])
+  @@map("invite_links")
+}
+
+// =============================================================================
+// Team Models
+// =============================================================================
+
+// Team model - a named group of workspace members
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  color       String   // Hex color (e.g., "#FF5733")
+  
+  // Relations
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  members     TeamMember[]
+  collections TeamCollection[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@map("teams")
+}
+
+// TeamMember model - links workspace members to teams
+model TeamMember {
+  teamId   String
+  team     Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  memberId String
+  member   WorkspaceMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+
+  @@id([teamId, memberId])
+  @@map("team_members")
+}
+
+// TeamCollection model - grants team access to collections
+model TeamCollection {
+  teamId       String
+  team         Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  
+  // Permission level
+  accessLevel  CollectionAccessLevel @default(EDIT)
+  
+  createdAt    DateTime   @default(now())
+
+  @@id([teamId, collectionId])
+  @@map("team_collections")
+}
+
+// =============================================================================
+// Collection & Scene Models
+// =============================================================================
+
+// Collection model - folders for organizing scenes within a workspace
+model Collection {
+  id          String   @id @default(cuid())
+  name        String
+  icon        String?  // Emoji or icon identifier
+  color       String?  // Optional color for the collection
+  
+  // Privacy settings
+  isPrivate   Boolean  @default(false)  // If true, only owner can see
+  
+  // Ownership - the user who created this collection
+  userId      String
+  
+  // Workspace association
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  scenes          Scene[]
+  teamCollections TeamCollection[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@map("collections")
+}
+
+// Scene model - stores scene metadata (actual data in S3)
+model Scene {
+  id           String    @id @default(cuid())
+  title        String    @default("Untitled")
+  thumbnailUrl String?   // Base64 or URL to thumbnail
+  
+  // Link to actual scene data in S3
+  storageKey   String    @unique // S3 key for scene data
+  roomId       String?   // Collaboration room ID (if active)
+  roomKeyEncrypted String?
+  collaborationEnabled Boolean @default(true)
+  
+  // Ownership
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Organization
+  collectionId String?
+  collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  isPublic     Boolean   @default(false)
+  lastOpenedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  talktrackRecordings TalktrackRecording[]
+  commentThreads      CommentThread[]
+  notifications       Notification[]
+
+  @@index([userId])
+  @@index([collectionId])
+  @@map("scenes")
+}
+
+// =============================================================================
+// Talktrack Models
+// =============================================================================
+
+// TalktrackRecording model - stores video recording metadata linked to scenes
+model TalktrackRecording {
+  id                String   @id @default(cuid())
+  title             String
+  kinescopeVideoId  String   @unique
+  duration          Int      // Duration in seconds
+  processingStatus  String   @default("processing") // uploading, processing, ready, error
+  
+  // Relations
+  sceneId           String
+  scene             Scene    @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([sceneId])
+  @@index([userId])
+  @@map("talktrack_recordings")
+}
+
+// =============================================================================
+// Comment System Models
+// =============================================================================
+
+// CommentThread model - anchor point for comments on the canvas
+model CommentThread {
+  id              String    @id @default(cuid())
+  
+  // Scene relationship
+  sceneId         String
+  scene           Scene     @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+  
+  // Canvas position (scene coordinates, not viewport)
+  x               Float
+  y               Float
+  
+  // Thread status
+  resolved        Boolean   @default(false)
+  resolvedAt      DateTime?
+  resolvedById    String?
+  resolvedBy      User?     @relation("ResolvedThreads", fields: [resolvedById], references: [id])
+  
+  // Thread creator
+  createdById     String
+  createdBy       User      @relation("CreatedThreads", fields: [createdById], references: [id])
+  
+  // Comments in this thread
+  comments        Comment[]
+  
+  // Notifications referencing this thread
+  notifications   Notification[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([sceneId])
+  @@index([createdById])
+  @@map("comment_threads")
+}
+
+// Comment model - individual message in a thread
+model Comment {
+  id              String        @id @default(cuid())
+  
+  // Thread relationship
+  threadId        String
+  thread          CommentThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  
+  // Content
+  content         String        @db.Text
+  
+  // Mentions (array of user IDs)
+  mentions        String[]      @default([])
+  
+  // Author
+  createdById     String
+  createdBy       User          @relation("CreatedComments", fields: [createdById], references: [id])
+  
+  // Edit tracking
+  editedAt        DateTime?
+  
+  // Notifications referencing this comment
+  notifications   Notification[]
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([threadId])
+  @@index([createdById])
+  @@map("comments")
+}
+
+// =============================================================================
+// Notification System Models
+// =============================================================================
+
+// Notification model - alerts users about comments and mentions
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  
+  // Recipient - who receives the notification
+  userId    String
+  user      User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Actor - who triggered the notification
+  actorId   String
+  actor     User             @relation("ActorNotifications", fields: [actorId], references: [id])
+  
+  // References to comment system
+  threadId  String?
+  thread    CommentThread?   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  commentId String?
+  comment   Comment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  sceneId   String
+  scene     Scene            @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+  
+  // Read status
+  read      Boolean          @default(false)
+  readAt    DateTime?
+  
+  createdAt DateTime         @default(now())
+  
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}

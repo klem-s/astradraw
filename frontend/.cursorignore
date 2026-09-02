@@ -1,0 +1,41 @@
+# =============================================================================
+# Frontend Cursorignore - Hierarchical ignore for frontend repo
+# =============================================================================
+# Excludes build artifacts, binary files, and rarely-needed content from AI indexing.
+
+# Build output
+dist/
+build/
+.vite/
+
+# Dependencies (all levels)
+node_modules/
+
+# Binary/font files (234 woff2 files - not useful for AI)
+packages/excalidraw/fonts/
+
+# Locales (exclude all except English and Russian which are actively maintained)
+!packages/excalidraw/locales/
+!packages/excalidraw/locales/en.json
+!packages/excalidraw/locales/ru-RU.json
+!packages/excalidraw/locales/percentages.json
+
+# Test snapshots
+**/__snapshots__/
+
+# Examples (separate demo projects with their own deps)
+examples/
+
+# Dev docs (Docusaurus site, not core application code)
+dev-docs/
+
+# Firebase (unused Firebase configuration)
+firebase-project/
+
+# Build scripts (binary tooling)
+scripts/wasm/
+scripts/woff2/
+
+# Generated runtime config
+public/env-config.js
+

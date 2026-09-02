@@ -13,38 +13,25 @@ Thank you for your interest in contributing to AstraDraw! This guide will help y
 
 ## Repository Structure
 
-AstraDraw consists of multiple repositories:
+AstraDraw is a monorepo:
 
-| Repository | Description | Local Folder |
-|------------|-------------|--------------|
-| [astradraw](https://github.com/AstraDraw/astradraw) | Main orchestration (this repo) | `/` |
-| [astradraw-app](https://github.com/AstraDraw/astradraw-app) | React frontend (Excalidraw fork) | `frontend/` |
-| [astradraw-api](https://github.com/AstraDraw/astradraw-api) | NestJS backend API | `backend/` |
-| [astradraw-room](https://github.com/AstraDraw/astradraw-room) | WebSocket server | `room-service/` |
+| Folder | Description |
+|--------|-------------|
+| `frontend/` | React frontend (Excalidraw fork) |
+| `backend/` | NestJS backend API |
+| `room-service/` | WebSocket server |
+| `deploy/` | Docker/Podman Compose, configs |
 
 ## Getting Started
 
-### 1. Clone the Main Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/AstraDraw/astradraw.git
 cd astradraw
 ```
 
-### 2. Clone the Sub-repositories
-
-```bash
-# Frontend (Excalidraw fork)
-git clone https://github.com/AstraDraw/astradraw-app.git frontend
-
-# Backend (NestJS API)
-git clone https://github.com/AstraDraw/astradraw-api.git backend
-
-# Room service (WebSocket)
-git clone https://github.com/AstraDraw/astradraw-room.git room-service
-```
-
-### 3. Set Up the Deploy Environment
+### 2. Set Up the Deploy Environment
 
 ```bash
 cd deploy
@@ -79,7 +66,7 @@ cp docker-compose.override.yml.disabled docker-compose.override.yml
 
 > **Note:** See [Docker Secrets Documentation](docs/deployment/DOCKER_SECRETS.md) for complete secrets management guide.
 
-### 4. Start Development
+### 3. Start Development
 
 **Recommended: Use `just` commands** (from project root):
 
@@ -107,7 +94,7 @@ docker compose logs -f app   # Frontend logs
 docker compose logs -f api   # Backend logs
 ```
 
-### 5. Access the Application
+### 4. Access the Application
 
 Open https://localhost in your browser (accept the self-signed certificate warning).
 
@@ -126,8 +113,8 @@ just check-all        # All checks (frontend + backend + room)
 just check-frontend   # TypeScript + Prettier + ESLint
 just check-backend    # Build + Prettier + ESLint
 
-# Git status across all repos
-just status           # Show git status for all repos
+# Git status
+just status           # Show git status
 ```
 
 ### Working on Frontend
@@ -206,20 +193,9 @@ docker compose --profile oidc up -d
 
 ## Making Changes
 
-### 1. Create Feature Branches
-
-Create branches in **all affected repositories** with the same name:
+### 1. Create a Feature Branch
 
 ```bash
-# Check git status first
-just status
-
-# If changing frontend
-cd frontend
-git checkout -b feature/my-feature
-
-# If changing backend
-cd backend
 git checkout -b feature/my-feature
 ```
 
@@ -241,11 +217,9 @@ just fresh-dev  # Fresh start with local builds
 
 ### 4. Commit and Push
 
-Use descriptive commit messages (these will be used for changelog at release):
+Use descriptive commit messages (these will be used for changelog at release). Scope the commit to the part of the monorepo it touches:
 
 ```bash
-# Frontend
-cd frontend
 git add -A
 git commit -m "feat(workspace): add auto-save functionality
 
@@ -253,17 +227,11 @@ git commit -m "feat(workspace): add auto-save functionality
 - Shows save indicator in toolbar
 - Handles offline/online transitions"
 git push origin feature/my-feature
-
-# Backend (if changed)
-cd backend
-git add -A
-git commit -m "feat(api): add scene versioning endpoint"
-git push origin feature/my-feature
 ```
 
-### 5. Create Pull Requests
+### 5. Create a Pull Request
 
-Create PRs in each affected repository. Link related PRs in the description.
+Open a single PR against this repository.
 
 ## Commit Message Format
 

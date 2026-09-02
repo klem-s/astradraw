@@ -1,0 +1,93 @@
+// =============================================================================
+// AstradrawLogo - CSS Module
+// =============================================================================
+@use "../../styles/mixins" as *;
+
+// Size CSS custom properties
+.logo {
+  --logo-icon--mobile: 1rem;
+  --logo-text--mobile: 0.75rem;
+
+  --logo-icon--xs: 1.5rem;
+  --logo-text--xs: 1.25rem;
+
+  --logo-icon--small: 2rem;
+  --logo-text--small: 1.5rem;
+
+  --logo-icon--normal: 2.5rem;
+  --logo-text--normal: 1.8rem;
+
+  --logo-icon--large: 72px;
+  --logo-text--large: 54px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    flex: 0 0 auto;
+  }
+}
+
+.icon {
+  width: auto;
+  // Icon uses gradient fill, no color override needed
+}
+
+.text {
+  margin-left: 0.5rem;
+  width: auto;
+  color: var(--color-logo-text, #3d3d99);
+}
+
+// Size variants
+.mobile {
+  .icon {
+    height: var(--logo-icon--mobile);
+  }
+
+  .text {
+    height: var(--logo-text--mobile);
+    margin-left: 0.5rem;
+  }
+}
+
+.xs {
+  .icon {
+    height: var(--logo-icon--xs);
+  }
+
+  .text {
+    height: var(--logo-text--xs);
+  }
+}
+
+.small {
+  .icon {
+    height: var(--logo-icon--small);
+  }
+
+  .text {
+    height: var(--logo-text--small);
+  }
+}
+
+.normal {
+  .icon {
+    height: var(--logo-icon--normal);
+  }
+
+  .text {
+    height: var(--logo-text--normal);
+  }
+}
+
+.large {
+  .icon {
+    height: var(--logo-icon--large);
+  }
+
+  .text {
+    height: var(--logo-text--large);
+  }
+}

@@ -1,0 +1,221 @@
+// TalktrackSetupDialog CSS Module
+// Migrated from global SCSS to CSS Module
+
+.dialog {
+  :global(.Dialog__content) {
+    max-width: 400px;
+    width: 100%;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.preview {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); // Mirror the preview
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0.9;
+
+  svg {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+.toggles {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border-outline-variant);
+  border-radius: 50%;
+  background: var(--color-surface-low);
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-surface-mid);
+    color: var(--color-on-surface);
+  }
+}
+
+.toggleActive {
+  background: var(--color-surface-mid);
+  color: var(--color-on-surface);
+  border-color: var(--color-primary);
+}
+
+.toggleDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  color: var(--color-on-surface-variant);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-border-outline-variant);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: talktrackSpin 0.8s linear infinite;
+}
+
+.error {
+  text-align: center;
+  padding: 16px;
+  color: var(--color-danger);
+  font-size: 13px;
+}
+
+.devices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.deviceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--color-border-outline-variant);
+  border-radius: 8px;
+  background: var(--color-surface-low);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.startButton {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-darker);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.backButton {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid var(--color-border-outline-variant);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-low);
+  }
+}
+
+@keyframes talktrackSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -7,13 +7,6 @@ deploy/logs/*.log
 deploy/.env
 
 # =============================================================================
-# LOCAL DEVELOPMENT CLONES (separate git repos)
-# =============================================================================
-frontend/
-backend/
-room-service/
-
-# =============================================================================
 # INTERNAL DEVELOPMENT FILES (not for public release)
 # =============================================================================
 
@@ -52,6 +45,9 @@ temp/
 postgres_data/
 pgadmin_data/
 minio_data/
+
+# Build artifacts (regenerated on every build)
+*.tsbuildinfo
 
 # Old location (before deploy/ folder)
 secrets/
