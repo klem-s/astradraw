@@ -41,6 +41,8 @@ import { showError } from "../utils/toast";
 import { encodeFilesForUpload } from "./FileManager";
 import { getStorageBackend } from "./config";
 
+import { ENV } from "../env";
+
 import type { WS_SUBTYPES } from "../app_constants";
 
 export type SyncableExcalidrawElement = OrderedExcalidrawElement &
@@ -65,8 +67,8 @@ export const getSyncableElements = (
     isSyncableElement(element),
   ) as SyncableExcalidrawElement[];
 
-const BACKEND_V2_GET = import.meta.env.VITE_APP_BACKEND_V2_GET_URL;
-const BACKEND_V2_POST = import.meta.env.VITE_APP_BACKEND_V2_POST_URL;
+const BACKEND_V2_GET = ENV.VITE_APP_BACKEND_V2_GET_URL;
+const BACKEND_V2_POST = ENV.VITE_APP_BACKEND_V2_POST_URL;
 
 const generateRoomId = async () => {
   const buffer = new Uint8Array(ROOM_ID_BYTES);

@@ -22,6 +22,7 @@ import { atom, useAtom, useAtomValue } from "../../app-jotai";
 import { activeRoomLinkAtom, type CollabAPI } from "../../collab/Collab";
 import {
   startCollaboration as startWorkspaceCollaboration,
+  stopWorkspaceCollaboration,
   type SceneAccess,
 } from "../../data/workspaceSceneLoader";
 import { isAutoCollabSceneAtom } from "../../components/Settings";
@@ -194,15 +195,18 @@ const WorkspaceSceneShare = ({
   sceneId,
   access,
   collabAPI,
+  roomId,
 }: {
   workspaceSlug: string;
   sceneId: string;
   access?: SceneAccess | null;
   collabAPI: CollabAPI | null;
+  roomId?: string | null;
 }) => {
   const { t } = useI18n();
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStopping, setIsStopping] = useState(false);
 
   // Reset local "enabled" state when switching scenes - otherwise this
   // keeps showing the previous scene's share link/enabled state as if it
@@ -210,7 +214,33 @@ const WorkspaceSceneShare = ({
   useEffect(() => {
     setShareLink(null);
     setIsLoading(false);
+    setIsStopping(false);
   }, [sceneId]);
+
+  // If collaboration is already active for this scene (e.g. reopening it
+  // in a later session), fetch its existing link instead of showing
+  // "Enable" as if nothing were on.
+  useEffect(() => {
+    if (!roomId) {
+      return;
+    }
+    let cancelled = false;
+    startWorkspaceCollaboration(sceneId)
+      .then(({ roomKey }) => {
+        if (cancelled) {
+          return;
+        }
+        setShareLink(
+          `${window.location.origin}/workspace/${workspaceSlug}/scene/${sceneId}#key=${roomKey}`,
+        );
+      })
+      .catch((error) => {
+        console.error("Failed to fetch existing collaboration link:", error);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [roomId, sceneId, workspaceSlug]);
 
   if (!access?.canView) {
     return null;
@@ -233,6 +263,29 @@ const WorkspaceSceneShare = ({
     }
   };
 
+  const handleStop = async () => {
+    if (
+      !window.confirm(
+        t("shareDialog.confirmStopCollaboration") ||
+          "Stop live collaboration on this scene? The share link will stop working.",
+      )
+    ) {
+      return;
+    }
+    setIsStopping(true);
+    try {
+      await stopWorkspaceCollaboration(sceneId);
+      if (collabAPI?.isCollaborating()) {
+        await collabAPI.stopCollaboration(false);
+      }
+      setShareLink(null);
+    } catch (error) {
+      console.error("Failed to stop collaboration:", error);
+    } finally {
+      setIsStopping(false);
+    }
+  };
+
   if (!access.canCollaborate) {
     return (
       <div className={styles.workspace}>
@@ -249,14 +302,24 @@ const WorkspaceSceneShare = ({
       <p>{t("shareDialog.workspaceSceneDescription")}</p>
 
       {shareLink ? (
-        <div className={styles.workspaceLink}>
-          <TextField value={shareLink} readonly />
+        <>
+          <div className={styles.workspaceLink}>
+            <TextField value={shareLink} readonly />
+            <FilledButton
+              label={t("buttons.copyLink")}
+              icon={copyIcon}
+              onClick={() => copyTextToSystemClipboard(shareLink)}
+            />
+          </div>
           <FilledButton
-            label={t("buttons.copyLink")}
-            icon={copyIcon}
-            onClick={() => copyTextToSystemClipboard(shareLink)}
+            variant="outlined"
+            color="danger"
+            label={t("shareDialog.stopCollaboration") || "Stop collaboration"}
+            icon={playerStopFilledIcon}
+            onClick={handleStop}
+            status={isStopping ? "loading" : null}
           />
-        </div>
+        </>
       ) : (
         <FilledButton
           label={t("shareDialog.enableCollaboration")}
@@ -328,6 +391,7 @@ const ShareDialogPicker = (props: ShareDialogProps) => {
           sceneId={workspaceContext.sceneId}
           access={workspaceContext.access}
           collabAPI={collabAPI}
+          roomId={workspaceContext.roomId}
         />
       )}
 

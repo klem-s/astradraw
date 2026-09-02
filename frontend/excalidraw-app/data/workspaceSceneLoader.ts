@@ -107,3 +107,23 @@ export async function startCollaboration(
 
   return response.json();
 }
+
+/**
+ * Stop live collaboration on a scene (owner or workspace admin only).
+ * Invalidates the room - old share links stop working.
+ */
+export async function stopWorkspaceCollaboration(
+  sceneId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${getApiBaseUrl()}/workspace/scenes/${sceneId}/collaborate`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to stop collaboration");
+  }
+}

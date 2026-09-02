@@ -488,6 +488,14 @@ const ExcalidrawWrapper = () => {
   const { isAuthenticated } = useAuth();
   const wasAuthenticated = useRef(false);
 
+  // The current scene's own roomId (persisted server-side, from the scene
+  // record itself) - distinct from collabAPI's live-connection roomId,
+  // which may still be null if the collab join hasn't finished yet even
+  // though the scene already has collaboration enabled.
+  const [currentSceneRoomId, setCurrentSceneRoomId] = useState<
+    string | null
+  >(null);
+
   // Workspace sidebar state - from Jotai atom (persisted to localStorage)
   const workspaceSidebarOpen = useAtomValue(workspaceSidebarOpenAtom);
   const openWorkspaceSidebar = useSetAtom(openWorkspaceSidebarAtom);
@@ -972,17 +980,24 @@ const ExcalidrawWrapper = () => {
         collabAPI.stopCollaboration(false);
       }
 
-      // Anonymous guest join: a room key in the URL fragment is enough to
-      // join a live collaboration session directly, without an account or
-      // scene access of any kind - matching classic Excalidraw share links.
-      // Authenticated users skip this and go through the full flow below
-      // so they keep their normal workspace context (sidebar, comments...).
-      if (roomKeyFromHash && !isAuthenticated && collabAPI && !isCollabDisabled) {
+      // Guest join: a room key in the URL fragment is enough to join a live
+      // collaboration session directly, regardless of whether the visitor
+      // has an account, is logged into some unrelated account, or is a
+      // member of this workspace at all - matching classic Excalidraw share
+      // links. Used as the primary path for anyone not authenticated at
+      // all, and as a fallback when an authenticated visitor turns out not
+      // to have workspace access (e.g. they're logged into a different,
+      // unrelated account).
+      const attemptGuestJoin = async (): Promise<boolean> => {
+        if (!roomKeyFromHash || !collabAPI || isCollabDisabled) {
+          return false;
+        }
         try {
           const roomInfo = await getRoomInfo(sceneId);
 
           setCurrentSceneId(sceneId);
           setCurrentSceneTitle(roomInfo.title || "Untitled");
+          setCurrentSceneRoomId(roomInfo.roomId);
 
           const sceneData = await collabAPI.startCollaboration({
             roomId: roomInfo.roomId,
@@ -1008,12 +1023,15 @@ const ExcalidrawWrapper = () => {
               sceneData || { elements: [], appState: {}, files: {} },
             );
           }
-          return;
+          return true;
         } catch (guestJoinError) {
           console.error("Guest collaboration join failed:", guestJoinError);
-          // Fall through to the authenticated flow below (e.g. the room
-          // was disabled, or this scene requires real membership).
+          return false;
         }
+      };
+
+      if (!isAuthenticated && (await attemptGuestJoin())) {
+        return;
       }
 
       try {
@@ -1022,6 +1040,7 @@ const ExcalidrawWrapper = () => {
         setCurrentWorkspaceSlug(workspaceSlug);
         setCurrentSceneId(loaded.scene.id);
         setCurrentSceneTitle(loaded.scene.title || "Untitled");
+        setCurrentSceneRoomId(loaded.roomId || null);
 
         // Set the active collection from the scene's collection
         // This ensures the sidebar shows the correct collection on page refresh
@@ -1182,6 +1201,15 @@ const ExcalidrawWrapper = () => {
 
         navigateToCanvas();
       } catch (error) {
+        // Authenticated but not a member of this workspace (e.g. logged
+        // into a different account than the one that owns this scene) -
+        // fall back to a guest join if the link carries a room key.
+        const isAccessDenied =
+          error instanceof Error && error.message === "Access denied to this scene";
+        if (isAccessDenied && (await attemptGuestJoin())) {
+          return;
+        }
+
         console.error("Failed to load workspace scene:", error);
         setErrorMessage(
           error instanceof Error ? error.message : "Failed to load scene",
@@ -1607,6 +1635,7 @@ const ExcalidrawWrapper = () => {
         }
         setCurrentSceneId(scene.id);
         setCurrentSceneTitle(title);
+        setCurrentSceneRoomId(scene.roomId || null);
 
         if (targetCollectionId) {
           setActiveCollectionId(targetCollectionId);
@@ -1824,6 +1853,7 @@ const ExcalidrawWrapper = () => {
 
         setCurrentSceneId(scene.id);
         setCurrentSceneTitle(title);
+        setCurrentSceneRoomId(scene.roomId || null);
         excalidrawAPI.setToast({ message: `${t("workspace.saveScene")} ✓` });
       }
     } catch (error) {
@@ -2173,7 +2203,7 @@ const ExcalidrawWrapper = () => {
                     sceneId: currentSceneId,
                     workspaceSlug: currentWorkspace.slug,
                     access: currentSceneAccess || undefined,
-                    roomId: null,
+                    roomId: currentSceneRoomId,
                   }
                 : undefined
             }

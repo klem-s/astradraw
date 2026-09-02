@@ -855,7 +855,16 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
     this.initializeIdleDetector();
 
-    this.setActiveRoomLink(window.location.href);
+    // Only show the legacy "Live collaboration" dialog for classic,
+    // non-workspace room links. Workspace/auto-collab scenes have their own
+    // share UI (WorkspaceSceneShare) that knows the correct keyed link -
+    // window.location.href here would be the scene's plain URL, which
+    // never carries the room key and would show a broken link.
+    const isAutoCollab =
+      !!existingRoomLinkData && "isAutoCollab" in existingRoomLinkData;
+    if (!isAutoCollab) {
+      this.setActiveRoomLink(window.location.href);
+    }
 
     return scenePromise;
   };

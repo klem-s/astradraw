@@ -1163,6 +1163,54 @@ export class WorkspaceScenesController {
     };
   }
 
+  /**
+   * Stop live collaboration on a scene (owner or workspace admin only).
+   * Clears the room so no one - including anyone with an old share link -
+   * can rejoin; a new room is generated if collaboration is re-enabled later.
+   */
+  @Delete('scenes/:id/collaborate')
+  async stopCollaboration(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<{ success: boolean }> {
+    const scene = await this.prisma.scene.findUnique({
+      where: { id },
+      include: { collection: { include: { workspace: true } } },
+    });
+
+    if (!scene) {
+      throw new NotFoundException('Scene not found');
+    }
+
+    const isOwner = scene.userId === user.id;
+    let isAdmin = false;
+    if (scene.collection) {
+      const membership = await this.workspacesService.getMembership(
+        scene.collection.workspaceId,
+        user.id,
+      );
+      isAdmin = !!membership && isAdminRole(membership.role);
+    }
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException(
+        'Only the scene owner or a workspace admin can stop collaboration',
+      );
+    }
+
+    await this.prisma.scene.update({
+      where: { id },
+      data: {
+        roomId: null,
+        roomKeyEncrypted: null,
+        collaborationEnabled: false,
+      },
+    });
+
+    this.logger.log(`Stopped collaboration for scene ${id}`);
+    return { success: true };
+  }
+
   private toSceneResponse(scene: any, canEdit: boolean): SceneResponse {
     return {
       id: scene.id,

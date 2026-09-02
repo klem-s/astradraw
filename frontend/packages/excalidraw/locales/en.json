@@ -393,6 +393,8 @@
     "workspaceScene": "Share this scene",
     "workspaceSceneDescription": "Team members with access to this collection can collaborate in real-time.",
     "enableCollaboration": "Enable collaboration",
+    "stopCollaboration": "Stop collaboration",
+    "confirmStopCollaboration": "Stop live collaboration on this scene? The share link will stop working.",
     "viewOnlyAccess": "You have view-only access to this scene.",
     "contactAdmin": "Contact a workspace admin to request edit access.",
     "workspacePermissionNote": "Only users with access to this collection can join."
