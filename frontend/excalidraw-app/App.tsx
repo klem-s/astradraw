@@ -203,7 +203,7 @@ import {
   listWorkspaces,
   startCollaboration,
 } from "./auth/workspaceApi";
-import { loadWorkspaceScene } from "./data/workspaceSceneLoader";
+import { loadWorkspaceScene, getRoomInfo } from "./data/workspaceSceneLoader";
 
 // Import extracted hooks
 import { useAutoSave } from "./hooks/useAutoSave";
@@ -578,7 +578,6 @@ const ExcalidrawWrapper = () => {
   } = useAutoSave({
     currentSceneId,
     excalidrawAPI,
-    isCollaborating,
     isLoggingOut,
   });
 
@@ -971,6 +970,50 @@ const ExcalidrawWrapper = () => {
 
       if (!isInitialLoad && collabAPI?.isCollaborating()) {
         collabAPI.stopCollaboration(false);
+      }
+
+      // Anonymous guest join: a room key in the URL fragment is enough to
+      // join a live collaboration session directly, without an account or
+      // scene access of any kind - matching classic Excalidraw share links.
+      // Authenticated users skip this and go through the full flow below
+      // so they keep their normal workspace context (sidebar, comments...).
+      if (roomKeyFromHash && !isAuthenticated && collabAPI && !isCollabDisabled) {
+        try {
+          const roomInfo = await getRoomInfo(sceneId);
+
+          setCurrentSceneId(sceneId);
+          setCurrentSceneTitle(roomInfo.title || "Untitled");
+
+          const sceneData = await collabAPI.startCollaboration({
+            roomId: roomInfo.roomId,
+            roomKey: roomKeyFromHash,
+            isAutoCollab: true,
+          });
+
+          if (sceneData?.elements) {
+            excalidrawAPI.updateScene({
+              elements: sceneData.elements,
+              captureUpdate: CaptureUpdateAction.IMMEDIATELY,
+            });
+            if (sceneData.scrollToContent) {
+              excalidrawAPI.scrollToContent();
+            }
+          }
+
+          collabAPI.setSceneId(sceneId);
+          setIsAutoCollabScene(true);
+
+          if (isInitialLoad) {
+            initialStatePromiseRef.current.promise.resolve(
+              sceneData || { elements: [], appState: {}, files: {} },
+            );
+          }
+          return;
+        } catch (guestJoinError) {
+          console.error("Guest collaboration join failed:", guestJoinError);
+          // Fall through to the authenticated flow below (e.g. the room
+          // was disabled, or this scene requires real membership).
+        }
       }
 
       try {

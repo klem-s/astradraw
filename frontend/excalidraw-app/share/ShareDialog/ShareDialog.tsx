@@ -204,6 +204,14 @@ const WorkspaceSceneShare = ({
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Reset local "enabled" state when switching scenes - otherwise this
+  // keeps showing the previous scene's share link/enabled state as if it
+  // applied to the newly viewed scene.
+  useEffect(() => {
+    setShareLink(null);
+    setIsLoading(false);
+  }, [sceneId]);
+
   if (!access?.canView) {
     return null;
   }
@@ -276,7 +284,12 @@ const ShareDialogPicker = (props: ShareDialogProps) => {
   const { collabAPI } = props;
   const workspaceContext = props.workspaceSceneContext;
 
-  const startCollabJSX = collabAPI ? (
+  // The legacy "Start Session" button below creates a standalone room with
+  // no ties to the workspace scene (its own random roomId/key, not the
+  // scene's roomId, and not persisted to the scene's storage). For a
+  // workspace scene, only the workspace-aware "Enable" button above should
+  // be offered - showing both produces confusing, broken share links.
+  const startCollabJSX = collabAPI && !workspaceContext ? (
     <>
       <div className={styles.pickerHeader}>
         {t("labels.liveCollaboration").replace(/\./g, "")}
@@ -398,6 +411,7 @@ export const ShareDialog = (props: {
       collabAPI={props.collabAPI}
       onExportToBackend={props.onExportToBackend}
       type={shareDialogState.type}
+      workspaceSceneContext={props.workspaceSceneContext}
     />
   );
 };

@@ -26,6 +26,7 @@ import {
   createHash,
 } from 'crypto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { Public } from '../auth/public.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, WorkspaceRole, WorkspaceType } from '@prisma/client';
@@ -313,6 +314,33 @@ export class WorkspaceScenesController {
     });
 
     return this.toSceneResponse(scene, access.canEdit);
+  }
+
+  /**
+   * Public room lookup for anonymous live-collaboration join links
+   * (workspace scene URLs carrying a #key= room key fragment).
+   *
+   * Only returns data for scenes that already have an active collaboration
+   * room (the owner explicitly enabled it). The room key itself is never
+   * sent to or stored by the server — it lives only in the URL fragment
+   * and is used purely client-side, so exposing the roomId here does not
+   * expose scene content.
+   */
+  @Public()
+  @Get('scenes/:id/room-info')
+  async getRoomInfo(
+    @Param('id') id: string,
+  ): Promise<{ roomId: string; title: string }> {
+    const scene = await this.prisma.scene.findUnique({
+      where: { id },
+      select: { roomId: true, collaborationEnabled: true, title: true },
+    });
+
+    if (!scene || !scene.roomId || !scene.collaborationEnabled) {
+      throw new NotFoundException('No active collaboration room for this scene');
+    }
+
+    return { roomId: scene.roomId, title: scene.title };
   }
 
   /**

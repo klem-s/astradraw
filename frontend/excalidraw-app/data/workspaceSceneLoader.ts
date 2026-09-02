@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from "../auth/workspaceApi";
+import { getAuthStatus } from "../auth/authApi";
 
 export interface SceneAccess {
   canView: boolean;
@@ -30,8 +31,17 @@ export async function loadWorkspaceScene(
   );
 
   if (response.status === 401) {
-    const returnUrl = encodeURIComponent(window.location.href);
-    window.location.href = `/api/v2/auth/login?redirect=${returnUrl}`;
+    const status = await getAuthStatus().catch(() => null);
+    if (status?.oidcConfigured && !status.localAuthEnabled) {
+      const returnUrl = encodeURIComponent(window.location.href);
+      window.location.href = `${getApiBaseUrl()}/auth/login?redirect=${returnUrl}`;
+    } else {
+      // No OIDC configured (or local auth is available) - the backend's
+      // /auth/login redirect is OIDC-only and 401s here, so send the
+      // visitor to the app home instead, where they can log in via the
+      // local-auth dialog and open this link again.
+      window.location.href = "/";
+    }
     throw new Error("Authentication required");
   }
 
@@ -56,6 +66,25 @@ export async function getCollaborationCredentials(
 
   if (!response.ok) {
     return null;
+  }
+
+  return response.json();
+}
+
+/**
+ * Public, unauthenticated lookup used to join a live collaboration room
+ * from a share link, without an AstraDraw account. Only succeeds if the
+ * scene owner has already enabled collaboration on that scene.
+ */
+export async function getRoomInfo(
+  sceneId: string,
+): Promise<{ roomId: string; title: string }> {
+  const response = await fetch(
+    `${getApiBaseUrl()}/workspace/scenes/${sceneId}/room-info`,
+  );
+
+  if (!response.ok) {
+    throw new Error("No active collaboration room for this scene");
   }
 
   return response.json();

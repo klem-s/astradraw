@@ -22,7 +22,6 @@ const BACKUP_SAVE_INTERVAL_MS = 30000; // 30 seconds safety net
 export interface UseAutoSaveOptions {
   currentSceneId: string | null;
   excalidrawAPI: ExcalidrawImperativeAPI | null;
-  isCollaborating: boolean;
   /** Flag to indicate logout is in progress - prevents saving empty canvas */
   isLoggingOut?: boolean;
 }
@@ -49,7 +48,6 @@ export interface UseAutoSaveReturn {
 export function useAutoSave({
   currentSceneId,
   excalidrawAPI,
-  isCollaborating,
   isLoggingOut = false,
 }: UseAutoSaveOptions): UseAutoSaveReturn {
   // Save status state machine
@@ -196,14 +194,16 @@ export function useAutoSave({
   }, []);
 
   // Auto-save effect - triggers after debounce period
+  //
+  // This also runs while collaborating: the collab room's own save path
+  // (queueSaveToStorage) persists elements to a room-scoped storage key
+  // (rooms/<roomId>) used for fast peer sync, not to this scene's actual
+  // storageKey (scenes/<storageKey>) that opening the scene later reads
+  // from. Without this REST save also running, collaborative edits are
+  // never written to the scene's real storage and are lost once the room
+  // empties out.
   useEffect(() => {
-    // Skip autosave during collaboration (collab has its own save mechanism)
-    if (
-      !hasUnsavedChanges ||
-      !currentSceneId ||
-      !excalidrawAPI ||
-      isCollaborating
-    ) {
+    if (!hasUnsavedChanges || !currentSceneId || !excalidrawAPI) {
       return;
     }
 
@@ -236,17 +236,12 @@ export function useAutoSave({
         clearTimeout(autoSaveTimeoutRef.current);
       }
     };
-  }, [
-    hasUnsavedChanges,
-    currentSceneId,
-    excalidrawAPI,
-    isCollaborating,
-    performSave,
-  ]);
+  }, [hasUnsavedChanges, currentSceneId, excalidrawAPI, performSave]);
 
-  // Backup save interval - safety net every 30 seconds
+  // Backup save interval - safety net every 30 seconds. Also runs while
+  // collaborating, for the same reason as the debounced save above.
   useEffect(() => {
-    if (!currentSceneId || !excalidrawAPI || isCollaborating) {
+    if (!currentSceneId || !excalidrawAPI) {
       return;
     }
 
@@ -261,7 +256,7 @@ export function useAutoSave({
         clearInterval(backupSaveIntervalRef.current);
       }
     };
-  }, [currentSceneId, excalidrawAPI, isCollaborating, performSave]);
+  }, [currentSceneId, excalidrawAPI, performSave]);
 
   // Offline detection - update save status based on network state
   useEffect(() => {
