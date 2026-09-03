@@ -30,7 +30,6 @@
     "@sentry/browser": "9.0.1",
     "@tanstack/react-query": "5.90.12",
     "callsites": "4.2.0",
-    "firebase": "11.3.1",
     "i18next-browser-languagedetector": "6.1.4",
     "idb-keyval": "6.0.3",
     "jotai": "2.11.0",
@@ -43,7 +42,7 @@
   "prettier": "@excalidraw/prettier-config",
   "scripts": {
     "build-node": "node ./scripts/build-node.js",
-    "build:app:docker": "cross-env VITE_APP_DISABLE_SENTRY=true VITE_APP_WS_SERVER_URL=__VITE_APP_WS_SERVER_URL__ VITE_APP_BACKEND_V2_GET_URL=__VITE_APP_BACKEND_V2_GET_URL__ VITE_APP_BACKEND_V2_POST_URL=__VITE_APP_BACKEND_V2_POST_URL__ VITE_APP_HTTP_STORAGE_BACKEND_URL=__VITE_APP_HTTP_STORAGE_BACKEND_URL__ VITE_APP_STORAGE_BACKEND=__VITE_APP_STORAGE_BACKEND__ VITE_APP_FIREBASE_CONFIG=__VITE_APP_FIREBASE_CONFIG__ VITE_APP_DISABLE_TRACKING=__VITE_APP_DISABLE_TRACKING__ vite build",
+    "build:app:docker": "cross-env VITE_APP_DISABLE_SENTRY=true VITE_APP_WS_SERVER_URL=__VITE_APP_WS_SERVER_URL__ VITE_APP_BACKEND_V2_GET_URL=__VITE_APP_BACKEND_V2_GET_URL__ VITE_APP_BACKEND_V2_POST_URL=__VITE_APP_BACKEND_V2_POST_URL__ VITE_APP_HTTP_STORAGE_BACKEND_URL=__VITE_APP_HTTP_STORAGE_BACKEND_URL__ VITE_APP_STORAGE_BACKEND=__VITE_APP_STORAGE_BACKEND__ VITE_APP_DISABLE_TRACKING=__VITE_APP_DISABLE_TRACKING__ vite build",
     "build:app": "cross-env VITE_APP_GIT_SHA=$VERCEL_GIT_COMMIT_SHA cross-env VITE_APP_ENABLE_TRACKING=true vite build",
     "build:version": "node ../scripts/build-version.js",
     "build": "yarn build:app && yarn build:version",

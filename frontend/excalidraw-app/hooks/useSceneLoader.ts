@@ -51,6 +51,8 @@ export interface UseSceneLoaderReturn {
   setCurrentSceneId: (id: string | null) => void;
   /** Set current scene title */
   setCurrentSceneTitle: (title: string) => void;
+  /** Set current scene access permissions */
+  setCurrentSceneAccess: (access: SceneAccess | null) => void;
   /** Set current workspace slug */
   setCurrentWorkspaceSlug: (slug: string | null) => void;
   /**
@@ -404,6 +406,7 @@ export function useSceneLoader({
     currentWorkspaceSlug,
     setCurrentSceneId,
     setCurrentSceneTitle,
+    setCurrentSceneAccess,
     setCurrentWorkspaceSlug,
     loadScene,
     loadSceneRef,

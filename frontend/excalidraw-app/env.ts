@@ -60,9 +60,6 @@ export const ENV = {
   get VITE_APP_HTTP_STORAGE_BACKEND_URL() {
     return getEnv("VITE_APP_HTTP_STORAGE_BACKEND_URL");
   },
-  get VITE_APP_FIREBASE_CONFIG() {
-    return getEnv("VITE_APP_FIREBASE_CONFIG");
-  },
   get VITE_APP_DISABLE_TRACKING() {
     return getEnv("VITE_APP_DISABLE_TRACKING");
   },

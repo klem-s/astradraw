@@ -1,7 +1,6 @@
 import {
   Excalidraw,
   LiveCollaborationTrigger,
-  TTDDialogTrigger,
   CaptureUpdateAction,
   reconcileElements,
   useEditorInterface,
@@ -96,7 +95,6 @@ import Collab, {
 import { AppFooter } from "./components/AppFooter";
 import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
-import { ExportToExcalidrawPlus } from "./components/ExportToExcalidrawPlus";
 import { TopErrorBoundary } from "./components/TopErrorBoundary";
 
 import {
@@ -130,8 +128,6 @@ import DebugCanvas, {
   isVisualDebuggerEnabled,
   loadSavedDebugState,
 } from "./components/DebugCanvas";
-import { AIComponents } from "./components/AI";
-import { ExcalidrawPlusIframeExport } from "./ExcalidrawPlusIframeExport";
 
 import "./index.scss";
 
@@ -561,6 +557,7 @@ const ExcalidrawWrapper = () => {
     currentWorkspaceSlug,
     setCurrentSceneId,
     setCurrentSceneTitle,
+    setCurrentSceneAccess,
     setCurrentWorkspaceSlug,
     loadSceneRef,
     currentSceneIdRef,
@@ -998,6 +995,11 @@ const ExcalidrawWrapper = () => {
           setCurrentSceneId(sceneId);
           setCurrentSceneTitle(roomInfo.title || "Untitled");
           setCurrentSceneRoomId(roomInfo.roomId);
+          setCurrentSceneAccess({
+            canView: true,
+            canEdit: false,
+            canCollaborate: true,
+          });
 
           const sceneData = await collabAPI.startCollaboration({
             roomId: roomInfo.roomId,
@@ -1041,6 +1043,7 @@ const ExcalidrawWrapper = () => {
         setCurrentSceneId(loaded.scene.id);
         setCurrentSceneTitle(loaded.scene.title || "Untitled");
         setCurrentSceneRoomId(loaded.roomId || null);
+        setCurrentSceneAccess(loaded.access);
 
         // Set the active collection from the scene's collection
         // This ensures the sidebar shows the correct collection on page refresh
@@ -1636,6 +1639,11 @@ const ExcalidrawWrapper = () => {
         setCurrentSceneId(scene.id);
         setCurrentSceneTitle(title);
         setCurrentSceneRoomId(scene.roomId || null);
+        setCurrentSceneAccess({
+          canView: true,
+          canEdit: true,
+          canCollaborate: true,
+        });
 
         if (targetCollectionId) {
           setActiveCollectionId(targetCollectionId);
@@ -1854,6 +1862,11 @@ const ExcalidrawWrapper = () => {
         setCurrentSceneId(scene.id);
         setCurrentSceneTitle(title);
         setCurrentSceneRoomId(scene.roomId || null);
+        setCurrentSceneAccess({
+          canView: true,
+          canEdit: true,
+          canCollaborate: true,
+        });
         excalidrawAPI.setToast({ message: `${t("workspace.saveScene")} ✓` });
       }
     } catch (error) {
@@ -2030,36 +2043,13 @@ const ExcalidrawWrapper = () => {
           isCollaborating={isCollaborating}
           onPointerUpdate={collabAPI?.onPointerUpdate}
           validateEmbeddable={true}
+          aiEnabled={false}
           UIOptions={{
             canvasActions: {
               toggleTheme: true,
               export: {
                 saveFileToDisk: isAuthenticated,
                 onExportToBackend,
-                renderCustomUI: excalidrawAPI
-                  ? (elements, appState, files) => {
-                      return (
-                        <ExportToExcalidrawPlus
-                          elements={elements}
-                          appState={appState}
-                          files={files}
-                          name={excalidrawAPI.getName()}
-                          onError={(error) => {
-                            excalidrawAPI?.updateScene({
-                              appState: {
-                                errorMessage: error.message,
-                              },
-                            });
-                          }}
-                          onSuccess={() => {
-                            excalidrawAPI.updateScene({
-                              appState: { openDialog: null },
-                            });
-                          }}
-                        />
-                      );
-                    }
-                  : undefined,
               },
             },
           }}
@@ -2158,9 +2148,6 @@ const ExcalidrawWrapper = () => {
             onChange={() => excalidrawAPI?.refresh()}
             excalidrawAPI={excalidrawAPI}
           />
-          {excalidrawAPI && <AIComponents excalidrawAPI={excalidrawAPI} />}
-
-          <TTDDialogTrigger />
           {isCollaborating && isOffline && (
             <div className="alertalert--warning">
               {t("alerts.collabOfflineWarning")}
@@ -2198,10 +2185,10 @@ const ExcalidrawWrapper = () => {
               }
             }}
             workspaceSceneContext={
-              currentSceneId && currentWorkspace?.slug
+              currentSceneId && (currentWorkspace?.slug || currentWorkspaceSlug)
                 ? {
                     sceneId: currentSceneId,
-                    workspaceSlug: currentWorkspace.slug,
+                    workspaceSlug: currentWorkspace?.slug || currentWorkspaceSlug!,
                     access: currentSceneAccess || undefined,
                     roomId: currentSceneRoomId,
                   }
@@ -2377,12 +2364,6 @@ const ExcalidrawWrapper = () => {
 };
 
 const ExcalidrawApp = () => {
-  const isCloudExportWindow =
-    window.location.pathname === "/excalidraw-plus-export";
-  if (isCloudExportWindow) {
-    return <ExcalidrawPlusIframeExport />;
-  }
-
   return (
     <TopErrorBoundary>
       <AuthProvider>

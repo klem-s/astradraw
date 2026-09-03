@@ -1096,11 +1096,22 @@ export class WorkspaceScenesController {
       throw new NotFoundException('Scene not found');
     }
 
+    // Note: canCollaborate means "collaboration is already enabled and you
+    // may join it" - it's the wrong check here, since it would make
+    // (re-)enabling collaboration impossible once it's ever been stopped.
+    // Enabling collaboration only requires edit access to the scene.
     const access = await this.sceneAccessService.checkAccess(id, user.id);
-    if (!access.canCollaborate) {
+    if (!access.canEdit) {
       throw new ForbiddenException(
         'Collaboration not available for this scene',
       );
+    }
+
+    if (!scene.collaborationEnabled) {
+      await this.prisma.scene.update({
+        where: { id },
+        data: { collaborationEnabled: true },
+      });
     }
 
     let roomId = scene.roomId;
