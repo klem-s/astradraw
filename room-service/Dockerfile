@@ -19,3 +19,5 @@ EXPOSE 80
 
 # Run the server
 CMD ["node", "dist/index.js"]
+
+# ci: verify image build/push works

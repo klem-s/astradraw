@@ -59,3 +59,5 @@ RUN chmod +x /docker-entrypoint.sh
 # Use custom entrypoint to inject environment variables at runtime
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
+
+# ci: verify image build/push works

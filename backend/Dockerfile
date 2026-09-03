@@ -60,3 +60,5 @@ RUN chmod +x /app/docker-entrypoint.sh
 USER node
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+# ci: verify image build/push works
