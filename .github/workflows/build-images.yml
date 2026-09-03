@@ -2,10 +2,13 @@ name: Build and push images
 
 # Builds and pushes a container image to ghcr.io for whichever
 # service(s) changed on a push to main. Each service has its own
-# VERSION file (e.g. backend/VERSION) that this workflow bumps
-# (patch version) and commits back, then tags/pushes the image with
-# that version plus `latest`. This workflow does not deploy anything -
-# rolling out the new image to the cluster stays a manual step.
+# VERSION file (e.g. backend/VERSION) that this workflow bumps based
+# on the commit message (conventional-commit style):
+#   - "feat: ..." (or "feat(scope): ...")  -> bump minor, reset patch to 0
+#   - anything else (including "fix: ...") -> bump patch
+# and commits back, then tags/pushes the image with that version plus
+# `latest`. This workflow does not deploy anything - rolling out the
+# new image to the cluster stays a manual step.
 
 on:
   push:
@@ -55,12 +58,20 @@ jobs:
         with:
           ref: main
 
-      - name: Bump patch version
+      - name: Bump version
         id: version
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           current=$(cat backend/VERSION)
           IFS=. read -r major minor patch <<< "$current"
-          next="$major.$minor.$((patch + 1))"
+          if echo "$COMMIT_MSG" | grep -qiE '^feat(\(.+\))?!?:'; then
+            minor=$((minor + 1))
+            patch=0
+          else
+            patch=$((patch + 1))
+          fi
+          next="$major.$minor.$patch"
           echo "$next" > backend/VERSION
           echo "version=$next" >> "$GITHUB_OUTPUT"
 
@@ -102,12 +113,20 @@ jobs:
         with:
           ref: main
 
-      - name: Bump patch version
+      - name: Bump version
         id: version
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           current=$(cat frontend/VERSION)
           IFS=. read -r major minor patch <<< "$current"
-          next="$major.$minor.$((patch + 1))"
+          if echo "$COMMIT_MSG" | grep -qiE '^feat(\(.+\))?!?:'; then
+            minor=$((minor + 1))
+            patch=0
+          else
+            patch=$((patch + 1))
+          fi
+          next="$major.$minor.$patch"
           echo "$next" > frontend/VERSION
           echo "version=$next" >> "$GITHUB_OUTPUT"
 
@@ -149,12 +168,20 @@ jobs:
         with:
           ref: main
 
-      - name: Bump patch version
+      - name: Bump version
         id: version
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           current=$(cat room-service/VERSION)
           IFS=. read -r major minor patch <<< "$current"
-          next="$major.$minor.$((patch + 1))"
+          if echo "$COMMIT_MSG" | grep -qiE '^feat(\(.+\))?!?:'; then
+            minor=$((minor + 1))
+            patch=0
+          else
+            patch=$((patch + 1))
+          fi
+          next="$major.$minor.$patch"
           echo "$next" > room-service/VERSION
           echo "version=$next" >> "$GITHUB_OUTPUT"
 
